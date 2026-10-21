@@ -658,28 +658,54 @@
         <div id="dayCardsContainer"></div>
       </div>
 
-      <!-- 直近4週間 実績的中率カード -->
+      <!-- 的中率サマリーカード（再現検証結果・リード別表示） -->
       <div class="acc-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong style="font-size:13px; color:var(--primary);">🎯 直近4週間のセリ予測的中率（答え合わせ）</strong>
-          <span style="font-size:11px; color:var(--subtext);">目標80%区間</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <strong style="font-size:13px; color:var(--primary);">🎯 予測精度・的中率の検証結果</strong>
+          <span style="font-size:10px; background:#E2E8F0; color:#475569; padding:2px 6px; border-radius:4px; font-weight:800;">再現による検証結果</span>
         </div>
-        <div class="acc-grid">
-          <div class="acc-item">
-            <div class="acc-lbl">🦞 イセエビ類</div>
-            <div id="accLobsterVal" class="acc-val">85.4%</div>
-            <div id="accLobsterMape" style="font-size:10px; color:var(--subtext);">誤差 ±3.8%</div>
-          </div>
-          <div class="acc-item">
-            <div class="acc-lbl">🐠 高級地物</div>
-            <div id="accReefVal" class="acc-val">86.8%</div>
-            <div id="accReefMape" style="font-size:10px; color:var(--subtext);">誤差 ±5.9%</div>
-          </div>
-          <div class="acc-item">
-            <div class="acc-lbl">🐟 回遊魚他</div>
-            <div id="accPelagicVal" class="acc-val">79.5%</div>
-            <div id="accPelagicMape" style="font-size:10px; color:var(--subtext);">誤差 ±7.6%</div>
-          </div>
+        <p style="font-size:11px; color:var(--subtext); margin-bottom:8px; line-height:1.3;">
+          ※本日より本物の日次スナップショット保存を開始しました。4週間分蓄積完了後に本物データによる実績的中率へ移行します。
+        </p>
+
+        <!-- リード別精度テーブル -->
+        <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; font-size:11px;">
+          <table style="width:100%; border-collapse:collapse; text-align:center;">
+            <thead>
+              <tr style="background:#F1F5F9; color:var(--primary); font-weight:800; border-bottom:1px solid #E2E8F0;">
+                <th style="padding:6px 4px;">何日先</th>
+                <th style="padding:6px 4px;">🦞 イセエビ類</th>
+                <th style="padding:6px 4px;">🐠 高級地物</th>
+                <th style="padding:6px 4px;">判定・備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #F1F5F9;">
+                <td style="padding:6px 4px; font-weight:800;">1日先</td>
+                <td style="padding:6px 4px;">誤差 ±24.7%<br><span style="color:#16A34A; font-size:10px;">(区間81.2%)</span></td>
+                <td style="padding:6px 4px;">誤差 ±14.8%<br><span style="color:#16A34A; font-size:10px;">(区間83.5%)</span></td>
+                <td style="padding:6px 4px; color:#16A34A; font-weight:800;">◎ 実用推奨</td>
+              </tr>
+              <tr style="border-bottom:1px solid #F1F5F9;">
+                <td style="padding:6px 4px; font-weight:800;">3日先</td>
+                <td style="padding:6px 4px;">誤差 ±42.2%<br><span style="color:#16A34A; font-size:10px;">(区間81.0%)</span></td>
+                <td style="padding:6px 4px;">誤差 ±19.5%<br><span style="color:#16A34A; font-size:10px;">(区間80.2%)</span></td>
+                <td style="padding:6px 4px; color:#0284C7; font-weight:800;">◯ 目安水準</td>
+              </tr>
+              <tr style="border-bottom:1px solid #F1F5F9;">
+                <td style="padding:6px 4px; font-weight:800;">7日先</td>
+                <td style="padding:6px 4px;">誤差 ±40.5%<br><span style="color:#16A34A; font-size:10px;">(区間82.0%)</span></td>
+                <td style="padding:6px 4px;">誤差 ±22.0%<br><span style="color:#D97706; font-size:10px;">(区間76.8%)</span></td>
+                <td style="padding:6px 4px; color:#D97706; font-weight:800;">△ 参考程度</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 4px; font-weight:800;">14日先</td>
+                <td style="padding:6px 4px;">誤差 ±41.0%<br><span style="color:#16A34A; font-size:10px;">(区間80.5%)</span></td>
+                <td style="padding:6px 4px; color:#94A3B8;">-</td>
+                <td style="padding:6px 4px; color:#D97706; font-weight:800;">△ 生け参考</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1196,10 +1222,14 @@
         let tomariGross = 0, tomariGrossLow = 0, tomariGrossHigh = 0;
         let nahaDistGross = 0, nahaDistGrossLow = 0, nahaDistGrossHigh = 0;
         let isNoWeather = (lead > 3);
+        let isYaeFallback = false;
 
         activeRows.forEach(function(r) {
           const kg = r._calcKg;
           const pYae = getPred(r.fish, lead, "八重山漁協", "134");
+          if (pYae.rationale && pYae.rationale.indexOf("28日移動平均採用") !== -1) {
+            isYaeFallback = true;
+          }
           const nahaLead = Math.min(14, lead + (userSettings.transportDays || 1));
           const pTomari = getPred(r.fish, nahaLead, "JF沖縄魚市場", "119");
           const pNahaDist = getPred(r.fish, nahaLead, "那覇地区漁協", "138");
@@ -1244,6 +1274,7 @@
           dayInfo: dayInfo,
           nahaDayInfo: nahaDayInfo,
           isNoWeather: isNoWeather,
+          isYaeFallback: isYaeFallback,
           yaeNet: yaeNet,
           yaeNetLow: yaeNetLow,
           yaeNetHigh: yaeNetHigh,
@@ -1327,10 +1358,16 @@
           ? `<span class="badge-no-weather">天気予報なし・参考</span>`
           : `<span style="font-size:11px; color:var(--subtext); font-weight:700;">気象連動</span>`;
 
+        const longLeadBadge = (d.lead >= 7)
+          ? `<span class="badge-no-weather" style="background:#FEF3C7; color:#B45309; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">7日先以降は参考水準</span>`
+          : "";
+
         if (userBase === "yaeyama") {
           const yaeWinBadge = d.isYaeWin 
             ? `<span style="background:#0D9488; color:#FFF; font-size:11px; font-weight:900; padding:2px 7px; border-radius:6px;">八重山有利 (+${d.diff.toLocaleString()}円)</span>`
             : `<span style="background:#2563EB; color:#FFF; font-size:11px; font-weight:900; padding:2px 7px; border-radius:6px;">那覇有利 (+${d.diff.toLocaleString()}円)</span>`;
+
+          const yaeRefNote = d.isYaeFallback ? '<span style="background:#F1F5F9; color:#D97706; font-size:10px; font-weight:800; padding:2px 5px; border-radius:4px; margin-left:4px;">参考(28日平均)</span>' : '';
 
           card.innerHTML = `
             <div class="mkt-card-head">
@@ -1339,6 +1376,7 @@
               </div>
               <div style="display:flex; gap:4px; align-items:center;">
                 ${yaeWinBadge}
+                ${longLeadBadge}
                 ${weatherBadge}
               </div>
             </div>
@@ -1346,7 +1384,7 @@
             <!-- 八重山漁協 -->
             <div style="background:#F0FDFA; border:1px solid #99F6E4; border-radius:8px; padding:8px; margin-bottom:6px;">
               <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:14px;">
-                <span style="color:#0F766E;">🏝️ 八重山漁協に出す (地元)</span>
+                <span style="color:#0F766E;">🏝️ 八重山漁協に出す (地元) ${yaeRefNote}</span>
                 <span style="font-size:16px; color:#0F766E;">手取り: ${d.yaeNet.toLocaleString()} 円</span>
               </div>
               <div style="font-size:11px; color:#0D9488; margin-top:2px; display:flex; justify-content:space-between;">
@@ -1372,7 +1410,10 @@
           card.innerHTML = `
             <div class="mkt-card-head">
               <span style="font-size:16px; font-weight:900;">${d.dayInfo.fullLabel}</span>
-              ${weatherBadge}
+              <div style="display:flex; gap:4px; align-items:center;">
+                ${longLeadBadge}
+                ${weatherBadge}
+              </div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
               <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
@@ -1393,12 +1434,12 @@
 
     // 予測レコードの安全な検索
     function getPred(fishName, lead, marketName, marketId) {
-      if (!appData || !appData.predictions) return { mode: 1500, low: 1200, high: 1800 };
+      if (!appData || !appData.predictions) return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "" };
 
       const key1 = `${fishName}_${lead}_${marketName}`;
       if (appData.predictions[key1]) {
         const p = appData.predictions[key1];
-        return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800 };
+        return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "" };
       }
 
       const sp = appData.speciesList.find(function(s) { return s.dialectName === fishName; });
@@ -1406,12 +1447,12 @@
         const key2 = `${marketId}_${sp.id}_${lead}_自動`;
         if (appData.predictions[key2]) {
           const p = appData.predictions[key2];
-          return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800 };
+          return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "" };
         }
       }
 
       // フォールバック
-      return { mode: 1500, low: 1200, high: 1800 };
+      return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "" };
     }
   </script>
 </body>
