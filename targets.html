@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0F3D5E">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>狙い目一覧 | 沖縄魚市場ナビ</title>
+  <style>
+    :root {
+      --primary: #0F3D5E; --primary-dark: #08263D; --accent: #0284C7; --accent-light: #E0F2FE;
+      --up: #DC2626; --up-bg: #FEE2E2; --down: #2563EB; --down-bg: #DBEAFE;
+      --warn: #D97706; --warn-bg: #FEF3C7; --ok: #16A34A; --ok-bg: #DCFCE7;
+      --bg: #F1F5F9; --card: #FFFFFF; --text: #0F172A; --sub: #475569; --muted: #94A3B8; --border: #CBD5E1; --row-alt: #F8FAFC;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif; }
+    body { background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.4; padding-bottom: 40px; }
+    header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; padding: 10px 16px; position: sticky; top: 0; z-index: 20; }
+    .htop { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .htitle { font-size: 17px; font-weight: 800; }
+    .hback { color: #fff; text-decoration: none; font-size: 12px; font-weight: 700; background: rgba(255,255,255,.15); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+    .hsub { font-size: 11px; opacity: .85; margin-top: 3px; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 10px 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+    .lbl { font-size: 11px; font-weight: 800; color: var(--sub); margin-bottom: 6px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { border: 1px solid var(--border); background: #fff; color: var(--text); padding: 6px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+    select, input[type=search] { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; color: var(--text); }
+    .tog { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--sub); margin-top: 8px; }
+    .legend { font-size: 11px; color: var(--sub); display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; }
+    .tblwrap { overflow-x: auto; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+    table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 640px; }
+    th, td { padding: 7px 8px; border-bottom: 1px solid #E2E8F0; text-align: right; vertical-align: top; }
+    th { background: #E2E8F0; font-size: 11.5px; color: var(--sub); position: sticky; top: 0; z-index: 2; white-space: nowrap; cursor: pointer; }
+    th.sorted { background: var(--accent-light); color: var(--primary); }
+    th:first-child, td:first-child { text-align: left; position: sticky; left: 0; z-index: 1; background: inherit; }
+    th:first-child { z-index: 3; background: #E2E8F0; }
+    tbody tr { background: #fff; } tbody tr:nth-child(even) { background: var(--row-alt); }
+    .fname { font-weight: 800; font-size: 13.5px; }
+    .fmeta { font-size: 10.5px; color: var(--sub); margin-top: 2px; }
+    .rank { display: inline-block; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 6px; margin-left: 4px; vertical-align: 1px; }
+    .rA { background: var(--ok-bg); color: var(--ok); } .rB { background: var(--accent-light); color: var(--accent); }
+    .rC { background: var(--warn-bg); color: var(--warn); } .rR { background: #E2E8F0; color: var(--sub); }
+    .cell { cursor: pointer; min-width: 92px; }
+    .price { font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .vs { font-size: 11px; font-weight: 800; }
+    .vs.up { color: var(--up); } .vs.down { color: var(--down); } .vs.flat { color: var(--sub); }
+    .rng { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .tags { margin-top: 2px; display: flex; gap: 3px; justify-content: flex-end; flex-wrap: wrap; }
+    .tag { font-size: 9.5px; font-weight: 800; padding: 0 4px; border-radius: 4px; }
+    .tstorm { background: var(--up-bg); color: var(--up); } .tclose { background: var(--warn-bg); color: var(--warn); } .tref { background: #E2E8F0; color: var(--sub); }
+    .closed .price { color: var(--muted); text-decoration: line-through; }
+    .empty { padding: 30px; text-align: center; color: var(--sub); }
+    .acc { font-size: 12px; color: var(--sub); }
+    .acc table { min-width: 0; font-size: 12px; } .acc th, .acc td { padding: 4px 6px; position: static; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 50; align-items: flex-end; justify-content: center; }
+    .modal.on { display: flex; }
+    .sheet { background: #fff; width: 100%; max-width: 560px; border-radius: 16px 16px 0 0; padding: 14px 16px 22px; max-height: 85vh; overflow: auto; }
+    .sheet h3 { font-size: 16px; color: var(--primary); margin-bottom: 6px; }
+    .kv { display: grid; grid-template-columns: 9em 1fr; gap: 4px 10px; font-size: 13px; margin-top: 8px; }
+    .kv div:nth-child(odd) { color: var(--sub); }
+    .btn { border: none; background: #E2E8F0; padding: 8px 14px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 12px; font-size: 13px; }
+    .err { background: var(--warn-bg); color: #92400E; padding: 10px; border-radius: 8px; font-weight: 700; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="htop">
+      <div class="htitle">🎯 狙い目一覧（翌日〜5日後）</div>
+      <a class="hback" href="./index.html">← 出荷ナビ</a>
+    </div>
+    <div class="hsub" id="hsub">読み込み中...</div>
+  </header>
+
+  <div class="wrap">
+    <div class="err" id="err"></div>
+
+    <div class="card">
+      <div class="lbl">市場</div>
+      <div class="chips" id="mkChips"></div>
+    </div>
+
+    <div class="card">
+      <div class="row2">
+        <div>
+          <div class="lbl">並べ替え</div>
+          <select id="sortSel">
+            <option value="price">単価が高い順</option>
+            <option value="vs">直近比が高い順（値上がり見込み）</option>
+            <option value="amount">金額見込み順（単価×予想水揚量）</option>
+            <option value="rank">精度ランク順</option>
+            <option value="name">魚種名順</option>
+          </select>
+        </div>
+        <div>
+          <div class="lbl">並べ替えの基準日</div>
+          <div class="chips" id="dayChips"></div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="lbl">魚種グループ</div>
+        <div class="chips" id="grpChips"></div>
+      </div>
+      <div style="margin-top:10px">
+        <input type="search" id="q" placeholder="魚種名で検索（例: アカジン、マチ）">
+      </div>
+      <label class="tog"><input type="checkbox" id="showRef"> 参考値（旧モデル・取引の少ない魚種）も表示する</label>
+      <label class="tog"><input type="checkbox" id="hideClosed"> 休市見込みの日は単価を薄く表示（既定オン）</label>
+      <div class="legend">
+        <span><span class="rank rA">A</span> 直近1年の取引150日以上（信頼高）</span>
+        <span><span class="rank rB">B</span> 60〜149日</span>
+        <span><span class="rank rC">C</span> 60日未満</span>
+        <span><span class="tag tstorm">荒天明け</span> 休市明けで+15%上振れ傾向</span>
+        <span><span class="tag tclose">休市?</span> 休市見込み</span>
+        <span>直近比 = 直近の平均単価との差</span>
+      </div>
+    </div>
+
+    <div class="tblwrap"><table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+    <div id="count" class="acc" style="margin:6px 2px 12px;"></div>
+
+    <div class="card acc" id="accCard"></div>
+  </div>
+
+  <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="sheet"><div id="mbody"></div><button class="btn" onclick="closeModal()">閉じる</button></div>
+  </div>
+
+<script>
+const PRESET_GROUPS = [
+  { key: "all", label: "すべて", test: () => true },
+  { key: "ise", label: "🦞 イセエビ類", test: f => /イセエビ|ゴシキ|セミエビ|ワラジ|ゾウリ|ニシキ/.test(f.f) || f.cat === "lobster" },
+  { key: "tuna", label: "マグロ類", test: f => f.grp === "マグロ類" },
+  { key: "machi", label: "マチ類", test: f => f.grp === "マチ類" },
+  { key: "hata", label: "ハタ類", test: f => f.grp === "ハタ類" },
+  { key: "fue", label: "フエフキ・タイ", test: f => f.grp === "フエフキダイ・タイ類" },
+  { key: "budai", label: "ブダイ・ベラ", test: f => f.grp === "ブダイ・ベラ類" },
+  { key: "katsuo", label: "カツオ・カジキ・回遊", test: f => ["カツオ類", "カジキ類", "シイラ類", "サワラ・カマス類", "アジ・ブリ類"].includes(f.grp) },
+  { key: "other", label: "その他", test: f => !["マグロ類","マチ類","ハタ類","フエフキダイ・タイ類","ブダイ・ベラ類","カツオ類","カジキ類","シイラ類","サワラ・カマス類","アジ・ブリ類"].includes(f.grp) && f.cat !== "lobster" }
+];
+const RANK_ORDER = { A: 0, B: 1, C: 2, "参考": 3 };
+const S = { data: null, market: "134", grp: "all", sort: "price", day: "1", q: "", showRef: false, dimClosed: true };
+const LS_KEY = "fishTargetsPrefs";
+try { Object.assign(S, JSON.parse(localStorage.getItem(LS_KEY) || "{}")); } catch (e) {}
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify({ market: S.market, grp: S.grp, sort: S.sort, day: S.day, showRef: S.showRef, dimClosed: S.dimClosed })); } catch (e) {} }
+
+const yen = v => (v == null || isNaN(v)) ? "-" : Math.round(v).toLocaleString("ja-JP");
+const wd = ["日", "月", "火", "水", "木", "金", "土"];
+function dlabel(lead) {
+  const d = S.data.leadDates[lead]; if (!d) return `${lead}日後`;
+  const t = new Date(d + "T00:00:00");
+  const name = lead === "1" ? "翌日" : lead === "2" ? "翌々日" : `${lead}日後`;
+  return `${name} ${t.getMonth() + 1}/${t.getDate()}(${wd[t.getDay()]})`;
+}
+function isClosed(c) { return c && (/休市予定/.test(c.st) || (c.cp != null && c.cp >= 0.6)); }
+function isCaution(c) { return c && !isClosed(c) && (/休市注意/.test(c.st) || (c.cp != null && c.cp >= 0.3)); }
+function sortVal(f) {
+  const c = f.d[S.day];
+  if (S.sort === "name") return f.f;
+  if (S.sort === "rank") return (RANK_ORDER[f.rank] ?? 9) * 1e9 - (c ? c.mode : 0);
+  if (!c) return -Infinity;
+  if (S.sort === "vs") return c.vs ?? -Infinity;
+  if (S.sort === "amount") return c.mode * (c.kg || 0);
+  return c.mode;
+}
+
+function renderChips() {
+  const mk = document.getElementById("mkChips");
+  const ms = [["134", S.data.markets["134"]], ["119", S.data.markets["119"]], ["138", S.data.markets["138"]], ["all", "3市場すべて"]];
+  mk.innerHTML = ms.map(([k, v]) => `<button class="chip ${S.market === k ? "on" : ""}" onclick="setS('market','${k}')">${v}</button>`).join("");
+  document.getElementById("dayChips").innerHTML = ["1", "2", "3", "4", "5"].map(l =>
+    `<button class="chip ${S.day === l ? "on" : ""}" onclick="setS('day','${l}')">${l === "1" ? "翌日" : l === "2" ? "翌々日" : l + "日後"}</button>`).join("");
+  document.getElementById("grpChips").innerHTML = PRESET_GROUPS.map(g =>
+    `<button class="chip ${S.grp === g.key ? "on" : ""}" onclick="setS('grp','${g.key}')">${g.label}</button>`).join("");
+  document.getElementById("sortSel").value = S.sort;
+  document.getElementById("showRef").checked = S.showRef;
+  document.getElementById("hideClosed").checked = S.dimClosed;
+}
+function setS(k, v) { S[k] = v; save(); renderChips(); renderTable(); }
+
+function renderTable() {
+  const g = PRESET_GROUPS.find(x => x.key === S.grp) || PRESET_GROUPS[0];
+  let rows = S.data.fish.filter(f => (S.market === "all" || f.m === S.market) && g.test(f) && (S.showRef || f.src === "v3")
+                                    && (!S.q || f.f.includes(S.q) || (f.grp || "").includes(S.q)));
+  const dir = S.sort === "name" ? 1 : -1;
+  rows.sort((a, b) => { const x = sortVal(a), y = sortVal(b); return (x < y ? -1 : x > y ? 1 : 0) * (S.sort === "rank" ? 1 : dir); });
+  const leads = ["1", "2", "3", "4", "5"];
+  document.getElementById("thead").innerHTML = "<tr><th>魚種（精度ランク）</th>" +
+    leads.map(l => `<th class="${l === S.day ? "sorted" : ""}" onclick="setS('day','${l}')">${dlabel(l)}</th>`).join("") + "</tr>";
+  if (!rows.length) {
+    document.getElementById("tbody").innerHTML = `<tr><td colspan="6" class="empty">該当する魚種がありません。${S.showRef ? "" : "「参考値も表示する」をオンにすると取引の少ない魚種も出ます。"}</td></tr>`;
+    document.getElementById("count").textContent = ""; return;
+  }
+  document.getElementById("tbody").innerHTML = rows.map((f, i) => {
+    const rk = f.src === "v3" ? f.rank : "参考";
+    const rc = { A: "rA", B: "rB", C: "rC" }[rk] || "rR";
+    const mk = S.market === "all" ? ` ・ ${f.mn}` : "";
+    const cells = leads.map(l => {
+      const c = f.d[l];
+      if (!c) return `<td class="rng">-</td>`;
+      const vsCls = c.vs == null ? "flat" : c.vs >= 3 ? "up" : c.vs <= -3 ? "down" : "flat";
+      const vsTxt = c.vs == null ? "" : `${c.vs > 0 ? "+" : ""}${c.vs.toFixed(0)}%`;
+      const tags = [c.storm ? `<span class="tag tstorm">荒天明け</span>` : "", isClosed(c) ? `<span class="tag tclose">休市?</span>` : isCaution(c) ? `<span class="tag tclose">休市注意</span>` : "",
+                    c.src !== "v3" ? `<span class="tag tref">参考</span>` : ""].join("");
+      const cls = S.dimClosed && isClosed(c) ? "cell closed" : "cell";
+      return `<td class="${cls}" onclick="openCell(${S.data.fish.indexOf(f)},'${l}')"><div class="price">${yen(c.mode)}</div>
+              <div class="vs ${vsCls}">${vsTxt}</div><div class="rng">${yen(c.lo)}〜${yen(c.hi)}</div><div class="tags">${tags}</div></td>`;
+    }).join("");
+    return `<tr><td><div class="fname">${f.f}<span class="rank ${rc}">${rk}</span></div><div class="fmeta">${f.grp}${mk}・直近 ${yen(f.recent)}円</div></td>${cells}</tr>`;
+  }).join("");
+  document.getElementById("count").textContent = `${rows.length} 魚種を表示（単価は円/kg の平均単価・最有力値、下段は80%予測区間）`;
+}
+
+function openCell(idx, lead) {
+  const f = S.data.fish[idx], c = f.d[lead];
+  const amt = c.kg ? Math.round(c.mode * c.kg) : null;
+  document.getElementById("mbody").innerHTML = `<h3>${f.f}（${f.mn}）</h3><div class="acc">${dlabel(lead)}</div>
+    <div class="kv">
+      <div>予想平均単価</div><div><b>${yen(c.mode)} 円/kg</b></div>
+      <div>80%予測区間</div><div>${yen(c.lo)} 〜 ${yen(c.hi)} 円/kg</div>
+      <div>直近の平均単価</div><div>${yen(f.recent)} 円/kg（直近比 ${c.vs == null ? "-" : (c.vs > 0 ? "+" : "") + c.vs + "%"}）</div>
+      <div>予想水揚量</div><div>${c.kg == null ? "-" : c.kg + " kg"}（旧モデル推定）</div>
+      <div>金額見込み</div><div>${amt == null ? "-" : yen(amt) + " 円"}</div>
+      <div>市場の見込み</div><div>${c.st || "-"}${c.cp != null ? `（休市確率 ${Math.round(c.cp * 100)}%）` : ""}</div>
+      <div>荒天休市明け補正</div><div>${c.storm ? `あり：再開日は +15% 上振れ傾向（${yen(c.adj)} 円/kg）` : "なし"}</div>
+      <div>予測の出所</div><div>${c.src === "v3" ? "v3モデル（LightGBM）" : "参考値（旧モデル）"}</div>
+      <div>精度ランク</div><div>${f.src === "v3" ? f.rank : "参考"}（直近1年の取引 ${f.days} 日）</div>
+    </div>`;
+  document.getElementById("modal").classList.add("on");
+}
+function closeModal() { document.getElementById("modal").classList.remove("on"); }
+
+function renderAcc() {
+  const a = S.data.accuracy; if (!a || !a.byLead) return;
+  const cats = { lobster: "🦞 イセエビ類", reef: "🐠 地物", pelagic: "🐟 回遊魚他" };
+  let h = `<div class="lbl">この予測の実力（${a.periodLabel}）</div><table><tr><th style="text-align:left">区分</th><th>誤差の中央値</th><th>5千円以上ロットの平均誤差</th><th>80%区間に入った割合</th><th>件数</th></tr>`;
+  for (const [lead, o] of Object.entries(a.byLead)) for (const [k, v] of Object.entries(o))
+    h += `<tr><td style="text-align:left">${cats[k] || k} ${lead}日先</td><td>${v.mapePct}%</td><td>${v.confMapePct ?? "-"}%</td><td>${v.coveragePct}%</td><td>${(v.n || 0).toLocaleString()}</td></tr>`;
+  h += `</table><div style="margin-top:6px">${a.note}</div>`;
+  document.getElementById("accCard").innerHTML = h;
+}
+
+document.getElementById("sortSel").onchange = e => setS("sort", e.target.value);
+document.getElementById("q").oninput = e => { S.q = e.target.value.trim(); renderTable(); };
+document.getElementById("showRef").onchange = e => setS("showRef", e.target.checked);
+document.getElementById("hideClosed").onchange = e => setS("dimClosed", e.target.checked);
+
+fetch("./data/targets_latest.json?t=" + Date.now()).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+  S.data = d;
+  document.getElementById("hsub").textContent = `最終更新 ${d.updated} ・ 予測の起点 ${d.origin || "-"} ・ 単価は円/kg`;
+  const age = (Date.now() - new Date(d.updated.replace(" ", "T") + ":00")) / 36e5;
+  if (age > 30) { const e = document.getElementById("err"); e.style.display = "block"; e.textContent = "⚠️ データの更新が30時間以上止まっています。"; }
+  renderChips(); renderTable(); renderAcc();
+}).catch(e => {
+  const el = document.getElementById("err"); el.style.display = "block"; el.textContent = "データを読み込めませんでした: " + e.message;
+  document.getElementById("hsub").textContent = "";
+});
+</script>
+</body>
+</html>
