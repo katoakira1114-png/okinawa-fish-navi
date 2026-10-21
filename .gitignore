@@ -1,0 +1,9 @@
+# 秘密情報・一時ファイルの追跡防止
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+.vscode/
+.idea/

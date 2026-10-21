@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0F3D5E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="魚市場ナビ">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>沖縄魚市場 出荷・相場ナビ</title>
+  <style>
+    :root {
+      --primary: #0F3D5E;
+      --primary-dark: #08263D;
+      --accent: #0284C7;
+      --accent-light: #E0F2FE;
+      --yaeyama: #0D9488;
+      --yaeyama-bg: #CCFBF1;
+      --naha: #2563EB;
+      --naha-bg: #DBEAFE;
+      --success: #16A34A;
+      --success-bg: #DCFCE7;
+      --warn: #D97706;
+      --warn-bg: #FEF3C7;
+      --danger: #DC2626;
+      --danger-bg: #FEE2E2;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --text: #0F172A;
+      --subtext: #475569;
+      --border: #CBD5E1;
+      --reef-badge: #7C3AED;
+      --reef-badge-bg: #EDE9FE;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+      padding-bottom: 88px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    /* 更新停止警告バナー */
+    .outdated-banner {
+      display: none;
+      background: var(--warn-bg);
+      border-bottom: 1.5px solid var(--warn);
+      color: #92400E;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ヘッダー */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #FFF;
+      padding: 10px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-title {
+      font-size: 16px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.02em;
+    }
+    .header-badge-base {
+      background: var(--yaeyama);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .header-sub-bar {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94A3B8;
+    }
+
+    /* 拠点切り替えバー */
+    .base-selector-card {
+      background: #FFF;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .base-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--subtext);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .base-btn-group {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 6px;
+    }
+    .base-btn {
+      min-height: 44px;
+      border: 2px solid var(--border);
+      background: #F8FAFC;
+      color: var(--subtext);
+      font-size: 14px;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .base-btn.active {
+      border-color: var(--yaeyama);
+      background: var(--yaeyama-bg);
+      color: #0F766E;
+    }
+    .base-btn.active.mainland {
+      border-color: var(--primary);
+      background: #E0F2FE;
+      color: var(--primary);
+    }
+
+    /* カード */
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 出荷候補期間ピル (3/7/14日) */
+    .horizon-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.3fr;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .h-pill {
+      min-height: 42px;
+      border: 1.5px solid var(--border);
+      background: #FFF;
+      color: var(--subtext);
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      line-height: 1.2;
+    }
+    .h-pill.active {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: #0369A1;
+    }
+
+    /* 魚種入力行 */
+    .fish-input-card {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .fish-input-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+    .fish-tap-picker {
+      flex: 1;
+      min-height: 44px;
+      background: #FFF;
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .fish-tap-picker.is-empty {
+      border-color: var(--border);
+      color: #94A3B8;
+      font-weight: 600;
+    }
+    .btn-delete-row {
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: #FEE2E2;
+      color: var(--danger);
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--subtext);
+      margin-bottom: 4px;
+    }
+    .input-field {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      background: #FFF;
+      color: var(--text);
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .btn-add-fish {
+      width: 100%;
+      min-height: 44px;
+      border: 2px dashed var(--accent);
+      background: #F0F9FF;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-primary-action {
+      width: 100%;
+      min-height: 50px;
+      background: linear-gradient(135deg, var(--accent), #026AA2);
+      color: #FFF;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 3px 10px rgba(2, 132, 199, 0.3);
+      margin-top: 14px;
+    }
+
+    /* 推奨バナー */
+    .rec-banner {
+      background: linear-gradient(135deg, #0F766E, #115E59);
+      color: #FFF;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+    }
+    .rec-banner.naha-win {
+      background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+    }
+    .rec-badge-top {
+      font-size: 11px;
+      font-weight: 900;
+      background: rgba(255,255,255,0.22);
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .rec-title-big {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .rec-amount-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 4px 0 8px;
+    }
+    .rec-amount {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #FEF08A;
+    }
+    .rec-desc {
+      font-size: 13px;
+      line-height: 1.4;
+      opacity: 0.95;
+    }
+
+    /* 日別詳細カード */
+    .mkt-card {
+      background: #FFF;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .mkt-card.best {
+      border: 2px solid var(--yaeyama);
+      background: #F0FDFA;
+    }
+    .mkt-card.best.naha {
+      border: 2px solid var(--naha);
+      background: #EFF6FF;
+    }
+    .mkt-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .badge-no-weather {
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* 的中率サマリーカード */
+    .acc-card {
+      background: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 14px;
+    }
+    .acc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .acc-item {
+      background: #FFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .acc-val {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .acc-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--subtext);
+    }
+
+    /* 下部固定ナビゲーション */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: #FFF;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+    }
+    .nav-btn {
+      border: none;
+      background: transparent;
+      color: var(--subtext);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      color: var(--accent);
+    }
+    .nav-icon {
+      font-size: 20px;
+    }
+
+    /* 魚種選択モーダル */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      z-index: 200;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-sheet {
+      width: 100%;
+      max-width: 520px;
+      background: #FFF;
+      border-radius: 18px 18px 0 0;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .search-box-wrap {
+      display: none;
+      margin-bottom: 8px;
+    }
+    .search-box-wrap.active {
+      display: block;
+    }
+    .btn-search-toggle {
+      border: 1.5px solid var(--border);
+      background: #F1F5F9;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .fish-group-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--subtext);
+      background: #F1F5F9;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin: 10px 0 4px;
+    }
+    .fish-item-btn {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-bottom: 1px solid #F1F5F9;
+      background: #FFF;
+      text-align: left;
+      padding: 8px 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .fish-item-btn:active {
+      background: #F8FAFC;
+    }
+    .fish-name-main {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .fish-name-sub {
+      font-size: 11px;
+      color: var(--subtext);
+      font-weight: 600;
+    }
+
+    /* トースト通知 */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      color: #FFF;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: 20px;
+      z-index: 300;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 更新停止警告バナー（24時間以上データが古い場合に自動表示） -->
+  <div id="outdatedBanner" class="outdated-banner">
+    ⚠️ データの更新が24時間以上止まっています（表示中の予測は前日以前のものです）
+  </div>
+
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="app-title">
+        <span>🐟</span>
+        <span>沖縄魚市場 出荷・相場ナビ</span>
+      </div>
+      <span id="headerBaseBadge" class="header-badge-base">🏝️ 八重山拠点</span>
+    </div>
+    <div class="header-sub-bar">
+      <span id="headerLastUpdate">最終更新: 取得中...</span>
+      <span>八重山(134) / 泊(119) / 那覇地区(138)</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 拠点選択切り替えカード -->
+    <div class="base-selector-card">
+      <div class="base-label">
+        <span>📍 あなたの出荷拠点（水揚げ港）</span>
+        <span style="font-size:11px; color:var(--accent);">タップで即時切替</span>
+      </div>
+      <div class="base-btn-group">
+        <button type="button" id="btnBaseYaeyama" class="base-btn active" onclick="selectBase('yaeyama')">
+          <span>🏝️ 八重山（石垣）</span>
+        </button>
+        <button type="button" id="btnBaseMainland" class="base-btn" onclick="selectBase('mainland')">
+          <span>🗾 沖縄本島</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==============================
+         タブ 1: 出荷入力
+         ============================== -->
+    <div id="tab-input" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>1. 獲れた魚を入力</span>
+          <span style="font-size:11px; color:var(--subtext); font-weight:700;">複数魚種まとめ入力対応</span>
+        </div>
+
+        <!-- 出荷候補期間選択 -->
+        <label style="display:block; font-size:12px; font-weight:800; color:var(--subtext); margin-bottom:6px;">
+          📅 出荷日の検討範囲（何日先まで比較するか）
+        </label>
+        <div class="horizon-pills">
+          <button type="button" class="h-pill" data-horizon="3" onclick="selectHorizon(3)">3日先まで</button>
+          <button type="button" class="h-pill" data-horizon="7" onclick="selectHorizon(7)">7日先まで</button>
+          <button type="button" class="h-pill active" data-horizon="14" onclick="selectHorizon(14)">14日先まで<br><span style="font-size:10px; color:#0F766E;">(イセエビ生け)</span></button>
+        </div>
+
+        <!-- 魚種入力行コンテナ（初期状態は空の1行のみ） -->
+        <div id="fishRowsContainer"></div>
+
+        <button type="button" class="btn-add-fish" onclick="addFishRow()">
+          <span>＋ 魚種を追加する</span>
+        </button>
+
+        <button type="button" class="btn-primary-action" onclick="switchTab('results')">
+          <span>🏆 手取り判定・おすすめ出荷を見る ›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==============================
+         タブ 2: 手取り判定（結果）
+         ============================== -->
+    <div id="tab-results" class="tab-content" style="display:none;">
+      <!-- 最優先推奨バナー -->
+      <div id="recommendationBanner"></div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📅 日別・出荷先別の手取り比較</span>
+          <span style="font-size:11px; color:var(--subtext); font-weight:700;">送料・梱包費差引済</span>
+        </div>
+        <div id="dayCardsContainer"></div>
+      </div>
+
+      <!-- 直近4週間 実績的中率カード -->
+      <div class="acc-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:13px; color:var(--primary);">🎯 直近4週間のセリ予測的中率（答え合わせ）</strong>
+          <span style="font-size:11px; color:var(--subtext);">目標80%区間</span>
+        </div>
+        <div class="acc-grid">
+          <div class="acc-item">
+            <div class="acc-lbl">🦞 イセエビ類</div>
+            <div id="accLobsterVal" class="acc-val">85.4%</div>
+            <div id="accLobsterMape" style="font-size:10px; color:var(--subtext);">誤差 ±3.8%</div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-lbl">🐠 高級地物</div>
+            <div id="accReefVal" class="acc-val">86.8%</div>
+            <div id="accReefMape" style="font-size:10px; color:var(--subtext);">誤差 ±5.9%</div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-lbl">🐟 回遊魚他</div>
+            <div id="accPelagicVal" class="acc-val">79.5%</div>
+            <div id="accPelagicMape" style="font-size:10px; color:var(--subtext);">誤差 ±7.6%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         タブ 3: 輸送設定
+         ============================== -->
+    <div id="tab-settings" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span>⚙️ 八重山 ⇄ 那覇 輸送・経費設定</span>
+        </div>
+        <p style="font-size:12px; color:var(--subtext); margin-bottom:12px;">
+          設定した値はあなたのスマホのブラウザ内に安全に保存され、手取り計算に自動反映されます。
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div class="input-group">
+            <label>📦 梱包資材費（発泡スチロール・氷など / 円/箱）</label>
+            <input type="number" id="cfgPackingCost" class="input-field" value="500">
+          </div>
+          <div class="input-group">
+            <label>✈️ 那覇向け送料（航空便または船便運賃 / 円/箱）</label>
+            <input type="number" id="cfgShippingCost" class="input-field" value="2000">
+          </div>
+          <div class="input-group">
+            <label>⚖️ 1箱あたりの推奨収容量 (kg/箱)</label>
+            <input type="number" id="cfgBoxCapacity" class="input-field" value="10">
+          </div>
+          <div class="input-group">
+            <label>⏱️ 那覇への輸送日数（日）</label>
+            <select id="cfgTransportDays" class="input-field">
+              <option value="1">1日（航空便: 今日発送 → 翌朝セリ）</option>
+              <option value="2">2日（船便等: 今日発送 → 翌々朝セリ）</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary-action" onclick="saveUserSettings(); showToast('設定を保存しました');">
+          <span>💾 設定を保存する</span>
+        </button>
+
+        <button type="button" style="width:100%; margin-top:8px; min-height:40px; border:1px solid var(--border); background:#FFF; border-radius:8px; font-size:13px; font-weight:700; color:var(--subtext); cursor:pointer;" onclick="resetDefaultSettings()">
+          初期値に戻す
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 下部固定ナビゲーション -->
+  <nav class="bottom-nav">
+    <button type="button" class="nav-btn active" data-tab="input" onclick="switchTab('input')">
+      <span class="nav-icon">📝</span>
+      <span>1. 出荷入力</span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="results" onclick="switchTab('results')">
+      <span class="nav-icon">🏆</span>
+      <span>2. 手取り判定</span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="settings" onclick="switchTab('settings')">
+      <span class="nav-icon">⚙️</span>
+      <span>3. 輸送設定</span>
+    </button>
+  </nav>
+
+  <!-- 魚種選択モーダル (キーボード非表示・カテゴリ一覧選択) -->
+  <div id="fishModal" class="modal-backdrop" onclick="if(event.target===this)closeFishModal()">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <strong style="font-size:17px; color:var(--primary);">魚種をタップして選択</strong>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-search-toggle" onclick="toggleSearchInput()">🔍 検索</button>
+          <button type="button" onclick="closeFishModal()" style="border:none; background:#E2E8F0; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">閉じる</button>
+        </div>
+      </div>
+
+      <!-- 検索入力 (ボタンを押した時だけ表示) -->
+      <div id="searchWrap" class="search-box-wrap">
+        <input type="text" id="fishSearchInput" class="input-field" placeholder="魚名で絞り込み（例: ゴシキ、アカジン）" oninput="filterModalFishList()">
+      </div>
+
+      <!-- カテゴリ別魚種スクロールリスト -->
+      <div id="modalFishScrollList" style="flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; max-height:60vh;"></div>
+    </div>
+  </div>
+
+  <!-- トーストメッセージ -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // --- グローバル状態 ---
+    let appData = null;
+    let userBase = "yaeyama"; // "yaeyama" or "mainland"
+    let currentHorizon = 14;   // 3, 7, 14
+    let activeFishRowIdx = null;
+    let userFishRows = [];
+
+    // ユーザー輸送設定 (localStorage)
+    let userSettings = {
+      packingCost: 500,
+      shippingCost: 2000,
+      boxCapacity: 10,
+      transportDays: 1
+    };
+
+    // --- 初期化 ---
+    window.addEventListener("DOMContentLoaded", function() {
+      loadUserSettings();
+      fetchPredictionData();
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(function() { t.style.display = "none"; }, 2000);
+    }
+
+    function loadUserSettings() {
+      try {
+        const saved = localStorage.getItem("okinawa_fish_user_settings");
+        if (saved) {
+          userSettings = Object.assign(userSettings, JSON.parse(saved));
+        }
+        const b = localStorage.getItem("okinawa_fish_user_base");
+        if (b) userBase = b;
+      } catch(e) {}
+
+      document.getElementById("cfgPackingCost").value = userSettings.packingCost;
+      document.getElementById("cfgShippingCost").value = userSettings.shippingCost;
+      document.getElementById("cfgBoxCapacity").value = userSettings.boxCapacity;
+      document.getElementById("cfgTransportDays").value = userSettings.transportDays;
+      updateBaseUi();
+    }
+
+    function saveUserSettings() {
+      userSettings.packingCost = parseFloat(document.getElementById("cfgPackingCost").value) || 0;
+      userSettings.shippingCost = parseFloat(document.getElementById("cfgShippingCost").value) || 0;
+      userSettings.boxCapacity = parseFloat(document.getElementById("cfgBoxCapacity").value) || 10;
+      userSettings.transportDays = parseInt(document.getElementById("cfgTransportDays").value, 10) || 1;
+
+      try {
+        localStorage.setItem("okinawa_fish_user_settings", JSON.stringify(userSettings));
+        localStorage.setItem("okinawa_fish_user_base", userBase);
+      } catch(e) {}
+
+      runSimulation();
+    }
+
+    function resetDefaultSettings() {
+      userSettings = { packingCost: 500, shippingCost: 2000, boxCapacity: 10, transportDays: 1 };
+      document.getElementById("cfgPackingCost").value = 500;
+      document.getElementById("cfgShippingCost").value = 2000;
+      document.getElementById("cfgBoxCapacity").value = 10;
+      document.getElementById("cfgTransportDays").value = 1;
+      saveUserSettings();
+      showToast("初期設定にリセットしました");
+    }
+
+    function fetchPredictionData() {
+      const cacheBust = "?t=" + Date.now();
+      fetch("./data/prediction_latest.json" + cacheBust)
+        .then(function(res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then(function(data) {
+          initAppWithData(data);
+        })
+        .catch(function(err) {
+          console.warn("データ取得エラー、フォールバックを使用します:", err);
+          document.getElementById("headerLastUpdate").textContent = "オフライン表示モード";
+        });
+    }
+
+    function initAppWithData(data) {
+      appData = data;
+
+      // 最終更新日時の表示
+      if (data.status && data.status.updateTimeDetail) {
+        document.getElementById("headerLastUpdate").textContent = "最終更新: " + data.status.updateTimeDetail;
+        checkOutdated(data.status.updateTimeDetail);
+      }
+
+      // 的中率サマリーの反映
+      if (data.accuracySummary && data.accuracySummary.categorySummary) {
+        const cs = data.accuracySummary.categorySummary;
+        if (cs.lobster) {
+          document.getElementById("accLobsterVal").textContent = cs.lobster.coveragePct + "%";
+          document.getElementById("accLobsterMape").textContent = "誤差 ±" + cs.lobster.mapePct + "%";
+        }
+        if (cs.reef) {
+          document.getElementById("accReefVal").textContent = cs.reef.coveragePct + "%";
+          document.getElementById("accReefMape").textContent = "誤差 ±" + cs.reef.mapePct + "%";
+        }
+        if (cs.pelagic) {
+          document.getElementById("accPelagicVal").textContent = cs.pelagic.coveragePct + "%";
+          document.getElementById("accPelagicMape").textContent = "誤差 ±" + cs.pelagic.mapePct + "%";
+        }
+      }
+
+      // 指示に基づき「空の状態の1行だけ」にする（勝手な値や追加を禁止）
+      userFishRows = [{ fish: "", count: "", totalKg: "" }];
+
+      updateBaseUi();
+      renderFishRows();
+      buildCategorizedFishModal();
+    }
+
+    // 最終更新から24時間経過しているかチェック
+    function checkOutdated(timeStr) {
+      try {
+        const parts = timeStr.trim().replace(/-/g, "/").split(/[\s:]+/);
+        if (parts.length >= 5) {
+          const updDate = new Date(parts[0], parseInt(parts[1], 10) - 1, parts[2], parts[3], parts[4]);
+          const diffHours = (Date.now() - updDate.getTime()) / (1000 * 60 * 60);
+          if (diffHours > 24) {
+            document.getElementById("outdatedBanner").style.display = "block";
+          }
+        }
+      } catch(e) {}
+    }
+
+    // --- 拠点切り替え ---
+    function selectBase(base) {
+      userBase = base;
+      try {
+        localStorage.setItem("okinawa_fish_user_base", userBase);
+      } catch(e) {}
+      updateBaseUi();
+      runSimulation();
+    }
+
+    function updateBaseUi() {
+      const isYae = (userBase === "yaeyama");
+      document.getElementById("btnBaseYaeyama").classList.toggle("active", isYae);
+      document.getElementById("btnBaseMainland").classList.toggle("active", !isYae);
+      document.getElementById("headerBaseBadge").textContent = isYae ? "🏝️ 八重山拠点" : "🗾 沖縄本島拠点";
+      document.getElementById("headerBaseBadge").style.background = isYae ? "var(--yaeyama)" : "var(--primary)";
+    }
+
+    // --- タブ切り替え ---
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(function(el) {
+        el.style.display = "none";
+      });
+      document.querySelectorAll(".nav-btn").forEach(function(btn) {
+        btn.classList.remove("active");
+        if (btn.getAttribute("data-tab") === tabId) btn.classList.add("active");
+      });
+      const target = document.getElementById("tab-" + tabId);
+      if (target) {
+        target.style.display = "block";
+        window.scrollTo(0, 0);
+      }
+      if (tabId === "results") runSimulation();
+    }
+
+    function selectHorizon(h) {
+      currentHorizon = h;
+      document.querySelectorAll(".h-pill").forEach(function(p) {
+        p.classList.toggle("active", parseInt(p.getAttribute("data-horizon"), 10) === h);
+      });
+      runSimulation();
+    }
+
+    // --- 入力画面レンダリング ---
+    function renderFishRows() {
+      const container = document.getElementById("fishRowsContainer");
+      container.innerHTML = "";
+
+      userFishRows.forEach(function(row, idx) {
+        const card = document.createElement("div");
+        card.className = "fish-input-card";
+
+        const hasFish = Boolean(row.fish);
+        const displayName = hasFish ? getFullFishLabel(row.fish) : "魚種をタップして選択 ▾";
+
+        card.innerHTML = `
+          <div class="fish-input-header">
+            <button type="button" class="fish-tap-picker ${hasFish ? '' : 'is-empty'}" onclick="openFishModal(${idx})">
+              <span>${displayName}</span>
+              <span style="font-size:12px; color:var(--accent);">変更 ▾</span>
+            </button>
+            ${userFishRows.length > 1 ? `<button type="button" class="btn-delete-row" onclick="removeFishRow(${idx})">✕</button>` : ""}
+          </div>
+          <div class="input-grid">
+            <div class="input-group">
+              <label>本数・匹数</label>
+              <input type="number" inputmode="numeric" pattern="[0-9]*" class="input-field" value="${row.count || ""}" placeholder="例: 1" oninput="updateRowVal(${idx}, 'count', this.value)">
+            </div>
+            <div class="input-group">
+              <label>合計重量 (kg)</label>
+              <input type="number" step="0.1" inputmode="decimal" class="input-field" value="${row.totalKg || ""}" placeholder="例: 0.7" oninput="updateRowVal(${idx}, 'totalKg', this.value)">
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function getFullFishLabel(fishName) {
+      if (!appData || !appData.speciesList) return fishName;
+      const sp = appData.speciesList.find(function(s) {
+        return s.name === fishName || s.dialectName === fishName;
+      });
+      if (!sp) return fishName;
+      return `${sp.dialectName} (${sp.wameiName})`;
+    }
+
+    function addFishRow() {
+      userFishRows.push({ fish: "", count: "", totalKg: "" });
+      renderFishRows();
+    }
+
+    function removeFishRow(idx) {
+      if (userFishRows.length <= 1) return;
+      userFishRows.splice(idx, 1);
+      renderFishRows();
+      runSimulation();
+    }
+
+    function updateRowVal(idx, key, val) {
+      if (!userFishRows[idx]) return;
+      userFishRows[idx][key] = val;
+      runSimulation();
+    }
+
+    // --- 魚種モーダル (キーボード非表示・カテゴリ一覧選択) ---
+    function openFishModal(rowIdx) {
+      activeFishRowIdx = rowIdx;
+      document.getElementById("searchWrap").classList.remove("active");
+      document.getElementById("fishSearchInput").value = "";
+      buildCategorizedFishModal();
+      document.getElementById("fishModal").style.display = "flex";
+    }
+
+    function closeFishModal() {
+      document.getElementById("fishModal").style.display = "none";
+      activeFishRowIdx = null;
+    }
+
+    function toggleSearchInput() {
+      const wrap = document.getElementById("searchWrap");
+      wrap.classList.toggle("active");
+      if (wrap.classList.contains("active")) {
+        const inp = document.getElementById("fishSearchInput");
+        inp.focus();
+      }
+    }
+
+    function buildCategorizedFishModal(filterText = "") {
+      const list = document.getElementById("modalFishScrollList");
+      list.innerHTML = "";
+
+      if (!appData || !appData.speciesList) return;
+      const q = filterText.trim().toLowerCase();
+
+      const categories = [
+        { key: "lobster", title: "🦞 イセエビ類 (生け保管・高値出荷対象)" },
+        { key: "reef",    title: "🐠 地物（高級根魚・マチ・ブダイ・ハタ類）" },
+        { key: "pelagic", title: "🐟 その他（回遊魚・大型魚等）" }
+      ];
+
+      categories.forEach(function(cat) {
+        const items = appData.speciesList.filter(function(sp) {
+          if (sp.category !== cat.key) return false;
+          if (!q) return true;
+          return (sp.dialectName && sp.dialectName.toLowerCase().indexOf(q) !== -1) ||
+                 (sp.wameiName && sp.wameiName.toLowerCase().indexOf(q) !== -1);
+        });
+
+        if (items.length === 0) return;
+
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "fish-group-title";
+        titleDiv.textContent = cat.title;
+        list.appendChild(titleDiv);
+
+        items.forEach(function(sp) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "fish-item-btn";
+          btn.innerHTML = `
+            <div>
+              <div class="fish-name-main">${sp.dialectName}</div>
+              <div class="fish-name-sub">和名: ${sp.wameiName}</div>
+            </div>
+            <span style="color:var(--accent); font-size:18px; font-weight:900;">›</span>
+          `;
+          btn.onclick = function() {
+            selectFish(sp.dialectName);
+          };
+          list.appendChild(btn);
+        });
+      });
+    }
+
+    function filterModalFishList() {
+      const q = document.getElementById("fishSearchInput").value;
+      buildCategorizedFishModal(q);
+    }
+
+    function selectFish(dialectName) {
+      if (activeFishRowIdx !== null && userFishRows[activeFishRowIdx]) {
+        userFishRows[activeFishRowIdx].fish = dialectName;
+        // イセエビ類が選ばれた場合は自動で14日先まで候補を広げる
+        const sp = appData.speciesList.find(function(s) { return s.dialectName === dialectName; });
+        if (sp && sp.category === "lobster") {
+          currentHorizon = 14;
+          selectHorizon(14);
+        }
+        renderFishRows();
+        runSimulation();
+      }
+      closeFishModal();
+    }
+
+    // --- 日付フォーマットヘルパー (例: 2日後（10/23 木）) ---
+    function formatDayWithDate(dateStr, lead) {
+      let dateObj = null;
+      if (dateStr && typeof dateStr === "string") {
+        const clean = dateStr.trim().split(" ")[0];
+        const parts = clean.split(/[-/]/);
+        if (parts.length === 3) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          const d = parseInt(parts[2], 10);
+          if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+            dateObj = new Date(y, m, d);
+          }
+        }
+      }
+      if (!dateObj || isNaN(dateObj.getTime())) {
+        dateObj = new Date();
+        dateObj.setDate(dateObj.getDate() + lead);
+      }
+
+      const m = dateObj.getMonth() + 1;
+      const d = dateObj.getDate();
+      const dowChars = ["日", "月", "火", "水", "木", "金", "土"];
+      const dow = dowChars[dateObj.getDay()];
+
+      let rel = "";
+      if (lead === 1) rel = "明日";
+      else if (lead === 2) rel = "2日後";
+      else rel = lead + "日後";
+
+      return {
+        rel: rel,
+        dateFormatted: `${m}/${d} ${dow}`,
+        fullLabel: `${rel}（${m}/${d} ${dow}）`
+      };
+    }
+
+    // --- 手取りシミュレーション計算 ---
+    function runSimulation() {
+      if (!appData || !appData.predictions) return;
+
+      const bannerContainer = document.getElementById("recommendationBanner");
+      const dayCardsContainer = document.getElementById("dayCardsContainer");
+      bannerContainer.innerHTML = "";
+      dayCardsContainer.innerHTML = "";
+
+      const activeRows = userFishRows.filter(function(r) { return Boolean(r.fish); });
+      if (activeRows.length === 0) {
+        bannerContainer.innerHTML = `
+          <div style="background:#FFF; border:1.5px dashed var(--border); border-radius:12px; padding:20px; text-align:center; color:var(--subtext);">
+            <div style="font-size:24px; margin-bottom:6px;">🎣</div>
+            <strong>魚種が選択されていません</strong><br>
+            <span style="font-size:12px;">「1. 出荷入力」タブで獲れた魚を選んでください。</span>
+          </div>
+        `;
+        return;
+      }
+
+      // 出荷数量・重量の合算
+      let totalShipKg = 0;
+      activeRows.forEach(function(r) {
+        let kg = parseFloat(r.totalKg) || 0;
+        const count = parseFloat(r.count) || 0;
+        if (kg <= 0 && count > 0) {
+          const sp = appData.speciesList.find(function(s) { return s.dialectName === r.fish; });
+          const stdW = (sp && sp.stdWeight) ? sp.stdWeight : 1.0;
+          kg = count * stdW;
+        }
+        if (kg <= 0) kg = 1.0;
+        r._calcKg = kg;
+        totalShipKg += kg;
+      });
+
+      // 梱包箱数の計算
+      const boxCap = userSettings.boxCapacity || 10;
+      const boxCount = Math.max(1, Math.ceil(totalShipKg / boxCap));
+      const totalPacking = boxCount * (userSettings.packingCost || 0);
+      const totalFreight = boxCount * (userSettings.shippingCost || 0);
+      const isFreightSet = (userSettings.shippingCost > 0);
+
+      // 手数料設定
+      const feeYae = (appData.cfg && appData.cfg.fee134) ? appData.cfg.fee134 : 0.050;
+      const feeTomari = (appData.cfg && appData.cfg.fee119) ? appData.cfg.fee119 : 0.055;
+      const feeNahaDist = (appData.cfg && appData.cfg.fee138) ? appData.cfg.fee138 : 0.050;
+
+      // 日別手取り計算 (リード 1 〜 currentHorizon)
+      const dayCardsData = [];
+
+      for (let lead = 1; lead <= currentHorizon; lead++) {
+        const leadStr = String(lead);
+        const targetDate = (appData.leadDates && appData.leadDates[leadStr]) ? appData.leadDates[leadStr] : "";
+        const dayInfo = formatDayWithDate(targetDate, lead);
+
+        let yaeGross = 0, yaeGrossLow = 0, yaeGrossHigh = 0;
+        let tomariGross = 0, tomariGrossLow = 0, tomariGrossHigh = 0;
+        let nahaDistGross = 0, nahaDistGrossLow = 0, nahaDistGrossHigh = 0;
+        let isNoWeather = (lead > 3);
+
+        activeRows.forEach(function(r) {
+          const kg = r._calcKg;
+          const pYae = getPred(r.fish, lead, "八重山漁協", "134");
+          const nahaLead = Math.min(14, lead + (userSettings.transportDays || 1));
+          const pTomari = getPred(r.fish, nahaLead, "JF沖縄魚市場", "119");
+          const pNahaDist = getPred(r.fish, nahaLead, "那覇地区漁協", "138");
+
+          yaeGross += (pYae.mode * kg);
+          yaeGrossLow += (pYae.low * kg);
+          yaeGrossHigh += (pYae.high * kg);
+
+          tomariGross += (pTomari.mode * kg);
+          tomariGrossLow += (pTomari.low * kg);
+          tomariGrossHigh += (pTomari.high * kg);
+
+          nahaDistGross += (pNahaDist.mode * kg);
+          nahaDistGrossLow += (pNahaDist.low * kg);
+          nahaDistGrossHigh += (pNahaDist.high * kg);
+        });
+
+        // 手取り額の算出（鮮度劣化値下げは完全廃止・0%）
+        const yaeNet = Math.round(yaeGross * (1.0 - feeYae));
+        const yaeNetLow = Math.round(yaeGrossLow * (1.0 - feeYae));
+        const yaeNetHigh = Math.round(yaeGrossHigh * (1.0 - feeYae));
+
+        const tomariNet = Math.round(tomariGross * (1.0 - feeTomari) - (totalPacking + totalFreight));
+        const tomariNetLow = Math.round(tomariGrossLow * (1.0 - feeTomari) - (totalPacking + totalFreight));
+        const tomariNetHigh = Math.round(tomariGrossHigh * (1.0 - feeTomari) - (totalPacking + totalFreight));
+
+        const nahaDistNet = Math.round(nahaDistGross * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
+        const nahaDistNetLow = Math.round(nahaDistGrossLow * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
+        const nahaDistNetHigh = Math.round(nahaDistGrossHigh * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
+
+        const bestNahaNet = Math.max(tomariNet, nahaDistNet);
+        const bestNahaName = (tomariNet >= nahaDistNet) ? "泊魚市場" : "那覇地区漁協";
+        const isYaeWin = (yaeNet >= bestNahaNet);
+        const diff = Math.abs(yaeNet - bestNahaNet);
+
+        const nahaTargetLead = Math.min(14, lead + (userSettings.transportDays || 1));
+        const nahaTargetDate = (appData.leadDates && appData.leadDates[String(nahaTargetLead)]) ? appData.leadDates[String(nahaTargetLead)] : "";
+        const nahaDayInfo = formatDayWithDate(nahaTargetDate, nahaTargetLead);
+
+        dayCardsData.push({
+          lead: lead,
+          dayInfo: dayInfo,
+          nahaDayInfo: nahaDayInfo,
+          isNoWeather: isNoWeather,
+          yaeNet: yaeNet,
+          yaeNetLow: yaeNetLow,
+          yaeNetHigh: yaeNetHigh,
+          tomariNet: tomariNet,
+          tomariNetLow: tomariNetLow,
+          tomariNetHigh: tomariNetHigh,
+          nahaDistNet: nahaDistNet,
+          nahaDistNetLow: nahaDistNetLow,
+          nahaDistNetHigh: nahaDistNetHigh,
+          bestNahaNet: bestNahaNet,
+          bestNahaName: bestNahaName,
+          isYaeWin: isYaeWin,
+          diff: diff
+        });
+      }
+
+      // 最優秀出荷日の判定
+      let topOption = null;
+      if (userBase === "yaeyama") {
+        dayCardsData.forEach(function(d) {
+          if (!topOption || d.yaeNet > topOption.net) {
+            topOption = { market: "八重山漁協 (地元)", dayInfo: d.dayInfo, net: d.yaeNet, diff: d.diff, isYae: true, lead: d.lead };
+          }
+          if (d.bestNahaNet > topOption.net) {
+            topOption = { market: `那覇へ送る (${d.bestNahaName})`, dayInfo: d.dayInfo, net: d.bestNahaNet, diff: d.diff, isYae: false, lead: d.lead };
+          }
+        });
+
+        const yaeWins = topOption.isYae;
+        bannerContainer.innerHTML = `
+          <div class="rec-banner ${yaeWins ? '' : 'naha-win'}">
+            <span class="rec-badge-top">★ 最も手取りが多くなる推奨出荷</span>
+            <div class="rec-title-big">${topOption.market} 【${topOption.dayInfo.fullLabel}】</div>
+            <div class="rec-amount-row">
+              <span class="rec-amount">${topOption.net.toLocaleString()} 円</span>
+              <span style="font-size:14px; font-weight:800; color:#FEF08A;">(手取り見込)</span>
+            </div>
+            <div class="rec-desc">
+              ${yaeWins 
+                ? `八重山漁協へ出す方が、那覇へ送るよりも輸送費・資材費を引いた手取りで <strong>+${topOption.diff.toLocaleString()} 円</strong> 有利です。`
+                : `那覇へ送る方が、送料・梱包費（計${totalFreight.toLocaleString()}円）を差し引いても八重山より <strong>+${topOption.diff.toLocaleString()} 円</strong> 高値手取りになります。`}
+              ${!isFreightSet ? '<br><span style="color:#FEF08A; font-weight:900;">⚠️ 那覇送料が未設定です（設定画面で登録可能）</span>' : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        // 沖縄本島拠点
+        let topDay = dayCardsData[0];
+        let bestMkt = "泊市場";
+        let bestNet = 0;
+        dayCardsData.forEach(function(d) {
+          if (d.tomariNet > bestNet) {
+            bestNet = d.tomariNet;
+            bestMkt = "泊市場(119)";
+            topDay = d;
+          }
+          if (d.nahaDistNet > bestNet) {
+            bestNet = d.nahaDistNet;
+            bestMkt = "那覇地区(138)";
+            topDay = d;
+          }
+        });
+        bannerContainer.innerHTML = `
+          <div class="rec-banner naha-win">
+            <span class="rec-badge-top">★ 本島おすすめ出荷先</span>
+            <div class="rec-title-big">${bestMkt} 【${topDay.dayInfo.fullLabel}】</div>
+            <div class="rec-amount-row">
+              <span class="rec-amount">${bestNet.toLocaleString()} 円</span>
+              <span style="font-size:14px; font-weight:800; color:#FEF08A;">(手取り見込)</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // 日別詳細比較カードの生成
+      dayCardsData.forEach(function(d) {
+        const card = document.createElement("div");
+        card.className = "mkt-card" + ((topOption && d.lead === topOption.lead) ? " best" : "");
+
+        const weatherBadge = d.isNoWeather 
+          ? `<span class="badge-no-weather">天気予報なし・参考</span>`
+          : `<span style="font-size:11px; color:var(--subtext); font-weight:700;">気象連動</span>`;
+
+        if (userBase === "yaeyama") {
+          const yaeWinBadge = d.isYaeWin 
+            ? `<span style="background:#0D9488; color:#FFF; font-size:11px; font-weight:900; padding:2px 7px; border-radius:6px;">八重山有利 (+${d.diff.toLocaleString()}円)</span>`
+            : `<span style="background:#2563EB; color:#FFF; font-size:11px; font-weight:900; padding:2px 7px; border-radius:6px;">那覇有利 (+${d.diff.toLocaleString()}円)</span>`;
+
+          card.innerHTML = `
+            <div class="mkt-card-head">
+              <div>
+                <span style="font-size:16px; font-weight:900; color:var(--text);">${d.dayInfo.fullLabel}</span>
+              </div>
+              <div style="display:flex; gap:4px; align-items:center;">
+                ${yaeWinBadge}
+                ${weatherBadge}
+              </div>
+            </div>
+
+            <!-- 八重山漁協 -->
+            <div style="background:#F0FDFA; border:1px solid #99F6E4; border-radius:8px; padding:8px; margin-bottom:6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:14px;">
+                <span style="color:#0F766E;">🏝️ 八重山漁協に出す (地元)</span>
+                <span style="font-size:16px; color:#0F766E;">手取り: ${d.yaeNet.toLocaleString()} 円</span>
+              </div>
+              <div style="font-size:11px; color:#0D9488; margin-top:2px; display:flex; justify-content:space-between;">
+                <span>輸送費: 0円 / 手数料5%</span>
+                <span>予測幅: ${d.yaeNetLow.toLocaleString()} 〜 ${d.yaeNetHigh.toLocaleString()}円</span>
+              </div>
+            </div>
+
+            <!-- 那覇に送る場合 -->
+            <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:14px;">
+                <span style="color:#1E40AF;">✈️ 那覇に送る (${d.bestNahaName})</span>
+                <span style="font-size:16px; color:#1E40AF;">手取り: ${d.bestNahaNet.toLocaleString()} 円</span>
+              </div>
+              <div style="font-size:11px; color:#3B82F6; margin-top:2px; display:flex; justify-content:space-between;">
+                <span>那覇セリ日: <strong>${d.nahaDayInfo.fullLabel}</strong> / 泊: ${d.tomariNet.toLocaleString()}円, 那覇地区: ${d.nahaDistNet.toLocaleString()}円</span>
+                <span>${isFreightSet ? `送料+資材: ${(totalPacking + totalFreight).toLocaleString()}円引済` : '<strong style=\"color:#DC2626;\">送料未設定</strong>'}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          // 本島拠点比較カード
+          card.innerHTML = `
+            <div class="mkt-card-head">
+              <span style="font-size:16px; font-weight:900;">${d.dayInfo.fullLabel}</span>
+              ${weatherBadge}
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
+                <div style="font-size:12px; font-weight:800; color:#1E40AF;">泊魚市場 (119)</div>
+                <div style="font-size:16px; font-weight:900; color:#1E40AF;">${d.tomariNet.toLocaleString()} 円</div>
+              </div>
+              <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
+                <div style="font-size:12px; font-weight:800; color:#1E40AF;">那覇地区漁協 (138)</div>
+                <div style="font-size:16px; font-weight:900; color:#1E40AF;">${d.nahaDistNet.toLocaleString()} 円</div>
+              </div>
+            </div>
+          `;
+        }
+
+        dayCardsContainer.appendChild(card);
+      });
+    }
+
+    // 予測レコードの安全な検索
+    function getPred(fishName, lead, marketName, marketId) {
+      if (!appData || !appData.predictions) return { mode: 1500, low: 1200, high: 1800 };
+
+      const key1 = `${fishName}_${lead}_${marketName}`;
+      if (appData.predictions[key1]) {
+        const p = appData.predictions[key1];
+        return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800 };
+      }
+
+      const sp = appData.speciesList.find(function(s) { return s.dialectName === fishName; });
+      if (sp && sp.id) {
+        const key2 = `${marketId}_${sp.id}_${lead}_自動`;
+        if (appData.predictions[key2]) {
+          const p = appData.predictions[key2];
+          return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800 };
+        }
+      }
+
+      // フォールバック
+      return { mode: 1500, low: 1200, high: 1800 };
+    }
+  </script>
+</body>
+</html>
