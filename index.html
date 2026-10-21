@@ -460,6 +460,11 @@
       color: #1E40AF;
       border: 1px solid #DBEAFE;
     }
+    .method-tag.twostage {
+      background: #F3E8FF;
+      color: #6B21A8;
+      border: 1px solid #D8B4FE;
+    }
 
     /* 下部固定ナビゲーション */
     .bottom-nav {
@@ -1573,18 +1578,27 @@
                       <div style="font-weight:800; color:var(--text); font-size:12px; margin-bottom:4px;">
                         🐟 ${fb.fish} (${fb.kg} kg)
                       </div>
-                      <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
-                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                      <div style="display:grid; grid-template-columns:1fr; gap:4px; font-size:11px;">
+                        <div>
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
+                            <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                          </div>
+                          ${fb.nahaDist.rationale ? `<div style="font-size:10px; color:#475569; margin-left:8px; margin-top:1px;">↳ 💡 ${fb.nahaDist.rationale}</div>` : ''}
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
-                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                        <div>
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
+                            <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                          </div>
+                          ${fb.tomari.rationale ? `<div style="font-size:10px; color:#475569; margin-left:8px; margin-top:1px;">↳ 💡 ${fb.tomari.rationale}</div>` : ''}
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <span style="font-weight:700; color:#0F766E;">八重山(134):</span>
-                          <span>最有力 <strong>${fb.yae.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.yae.method)} <span style="color:#0F766E; font-weight:700;">(上下限: ${fb.yae.low.toLocaleString()} 〜 ${fb.yae.high.toLocaleString()}円)</span></span>
+                        <div>
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:#0F766E;">八重山(134):</span>
+                            <span>最有力 <strong>${fb.yae.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.yae.method)} <span style="color:#0F766E; font-weight:700;">(上下限: ${fb.yae.low.toLocaleString()} 〜 ${fb.yae.high.toLocaleString()}円)</span></span>
+                          </div>
+                          ${fb.yae.rationale ? `<div style="font-size:10px; color:#475569; margin-left:8px; margin-top:1px;">↳ 💡 ${fb.yae.rationale}</div>` : ''}
                         </div>
                       </div>
                     </div>
@@ -1639,14 +1653,20 @@
                       <div style="font-weight:800; color:var(--text); font-size:12px; margin-bottom:4px;">
                         🐟 ${fb.fish} (${fb.kg} kg)
                       </div>
-                      <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
-                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                      <div style="display:grid; grid-template-columns:1fr; gap:4px; font-size:11px;">
+                        <div>
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
+                            <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                          </div>
+                          ${fb.nahaDist.rationale ? `<div style="font-size:10px; color:#475569; margin-left:8px; margin-top:1px;">↳ 💡 ${fb.nahaDist.rationale}</div>` : ''}
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                          <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
-                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                        <div>
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
+                            <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                          </div>
+                          ${fb.tomari.rationale ? `<div style="font-size:10px; color:#475569; margin-left:8px; margin-top:1px;">↳ 💡 ${fb.tomari.rationale}</div>` : ''}
                         </div>
                       </div>
                     </div>
@@ -1666,6 +1686,7 @@
       const m = method || "モデル";
       let cls = "method-tag";
       if (m.indexOf("28日") !== -1) cls += " ma28";
+      else if (m.indexOf("水準") !== -1 || m.indexOf("変動") !== -1) cls += " twostage";
       else if (m.indexOf("改善") !== -1 || m.indexOf("v2") !== -1) cls += " v2";
       else cls += " v1";
       return `<span class="${cls}">${m}</span>`;
