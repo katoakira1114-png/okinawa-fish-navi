@@ -466,6 +466,165 @@
       border: 1px solid #D8B4FE;
     }
 
+    /* 単価一覧マトリクステーブル */
+    .matrix-scroll-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      background: #FFFFFF;
+      margin-top: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      max-height: 65vh;
+    }
+    .matrix-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
+      min-width: 100%;
+      font-size: 11px;
+    }
+    .matrix-corner-th {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 30;
+      background: #1E3A8A;
+      color: #FFFFFF;
+      padding: 8px 6px;
+      font-weight: 900;
+      min-width: 115px;
+      max-width: 125px;
+      border-right: 2px solid #CBD5E1;
+      border-bottom: 2px solid #CBD5E1;
+      text-align: left;
+    }
+    .matrix-date-th {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #F8FAFC;
+      padding: 6px 4px;
+      text-align: center;
+      min-width: 82px;
+      border-bottom: 2px solid #CBD5E1;
+      border-right: 1px solid #E2E8F0;
+    }
+    .matrix-date-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: #0F172A;
+      white-space: nowrap;
+    }
+    .matrix-weather-box {
+      font-size: 9px;
+      margin-top: 2px;
+      line-height: 1.2;
+      color: #475569;
+    }
+    .matrix-cat-th {
+      background: #F1F5F9;
+      color: #1E293B;
+      font-weight: 900;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-bottom: 1.5px solid #CBD5E1;
+      text-align: left;
+      position: sticky;
+      left: 0;
+    }
+    .matrix-fish-td {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      background: #FFFFFF;
+      padding: 6px 8px;
+      border-right: 2px solid #CBD5E1;
+      border-bottom: 1px solid #E2E8F0;
+      min-width: 115px;
+      max-width: 125px;
+    }
+    .matrix-fish-main {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0F172A;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .matrix-fish-sub {
+      font-size: 9px;
+      color: #64748B;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .matrix-cell-td {
+      padding: 6px 4px;
+      text-align: center;
+      border-right: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+    .matrix-cell-td:active {
+      filter: brightness(0.92);
+    }
+    .matrix-price-num {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+    .matrix-delta-sub {
+      font-size: 9px;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+    /* 色分けクラス */
+    .cell-up-high {
+      background: #FEE2E2 !important;
+      color: #991B1B !important;
+    }
+    .cell-up-mid {
+      background: #FEF2F2 !important;
+      color: #B91C1C !important;
+    }
+    .cell-normal {
+      background: #FFFFFF !important;
+      color: #1E293B !important;
+    }
+    .cell-down {
+      background: #EFF6FF !important;
+      color: #1E40AF !important;
+    }
+    .cell-closed {
+      background: #F1F5F9 !important;
+      color: #94A3B8 !important;
+      font-weight: 700;
+    }
+    .badge-storm {
+      display: inline-block;
+      background: #DC2626;
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-top: 2px;
+    }
+    .badge-closed-mkt {
+      display: inline-block;
+      background: #64748B;
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-top: 2px;
+    }
+
     /* 下部固定ナビゲーション */
     .bottom-nav {
       position: fixed;
@@ -476,7 +635,7 @@
       background: #FFF;
       border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       z-index: 100;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
     }
@@ -720,10 +879,74 @@
     </div>
 
     <!-- ==============================
-         タブ 3: 輸送設定
+         タブ: 単価一覧 (tab-matrix)
          ============================== -->
+    <div id="tab-matrix" class="tab-content" style="display:none;">
+      <div class="card" style="padding:10px 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div>
+            <span style="font-size:15px; font-weight:900; color:var(--primary);">📊 魚種別・日付別の単価一覧</span>
+            <div style="font-size:10px; color:var(--subtext); margin-top:1px;">出漁判断・日別セリ相場比較表（タップで詳細）</div>
+          </div>
+          <span id="matrixLastUpdate" style="font-size:10px; color:var(--subtext); font-weight:700;"></span>
+        </div>
+
+        <!-- 市場切替ピルボタン -->
+        <label style="display:block; font-size:11px; font-weight:800; color:var(--subtext); margin-bottom:4px;">
+          🏢 表示市場・出荷先手取り
+        </label>
+        <div class="horizon-pills" style="margin-bottom:8px;">
+          <button type="button" class="h-pill active" id="btnMatMkt134" onclick="selectMatrixMarket('134')">🏝️ 八重山(134)</button>
+          <button type="button" class="h-pill" id="btnMatMkt119" onclick="selectMatrixMarket('119')">⚓ 泊市場(119)</button>
+          <button type="button" class="h-pill" id="btnMatMkt138" onclick="selectMatrixMarket('138')">🏙️ 那覇地区(138)</button>
+          <button type="button" class="h-pill" id="btnMatMktNet" onclick="selectMatrixMarket('naha_net')" style="border-color:#3B82F6; color:#1E40AF; background:#EFF6FF; font-weight:900;">✈️ 那覇手取り単価</button>
+        </div>
+
+        <!-- 那覇手取り時の輸送費注記バナー -->
+        <div id="matrixFreightBanner" style="display:none; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:6px 10px; margin-bottom:8px; font-size:11px; color:#1E40AF;">
+          <div id="matrixFreightText" style="font-weight:700;"></div>
+        </div>
+
+        <!-- 並べ替え & 期間切り替えコントロール -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:8px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:6px 8px;">
+          <div style="display:flex; align-items:center; gap:4px; font-size:11px;">
+            <span style="font-weight:800; color:var(--subtext);">並び:</span>
+            <select id="matrixSortSelect" onchange="changeMatrixSort(this.value)" style="font-size:11px; font-weight:700; border:1px solid var(--border); border-radius:6px; padding:4px 6px; background:#FFF;">
+              <option value="group">まとまり順（初期表示）</option>
+              <option value="tomorrow_desc">明日の単価が高い順</option>
+              <option value="day2_desc">明後日の単価が高い順</option>
+              <option value="surge_desc">28日平均比の上がり幅順</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px; font-size:11px;">
+            <span style="font-weight:800; color:var(--subtext);">期間:</span>
+            <select id="matrixHorizonSelect" onchange="changeMatrixHorizon(this.value)" style="font-size:11px; font-weight:700; border:1px solid var(--border); border-radius:6px; padding:4px 6px; background:#FFF;">
+              <option value="7">7日先まで</option>
+              <option value="14">14日先まで (イセエビ生け)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 凡例・出漁目安注記 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--subtext); margin-bottom:6px; flex-wrap:wrap; gap:4px;">
+          <div style="display:flex; gap:4px; align-items:center;">
+            <span>色分け:</span>
+            <span style="background:#FEE2E2; color:#991B1B; padding:1px 4px; border-radius:3px; font-weight:800;">+10%以上高</span>
+            <span style="background:#FEF2F2; color:#B91C1C; padding:1px 4px; border-radius:3px; font-weight:700;">+3〜10%高</span>
+            <span style="background:#EFF6FF; color:#1E40AF; padding:1px 4px; border-radius:3px; font-weight:700;">安値</span>
+          </div>
+          <div style="color:#64748B;">
+            ※風速10m/sまたは波2.4m超は「荒天」（仮設定）
+          </div>
+        </div>
+
+        <!-- マトリクステーブルコンテナ -->
+        <div id="matrixTableContainer" class="matrix-scroll-wrap"></div>
+      </div>
+    </div>
+
     <!-- ==============================
-         タブ 3: 販売手数料・輸送経費設定
+         タブ 4: 販売手数料・輸送経費設定
          ============================== -->
     <div id="tab-settings" class="tab-content" style="display:none;">
       <div class="card">
@@ -791,6 +1014,32 @@
               <option value="2">2日（船便等: 今日発送 → 翌々朝セリ）</option>
             </select>
           </div>
+
+          <!-- 出漁不可（荒天）判定基準セクション -->
+          <div style="background:#F8FAFC; border:1.5px solid var(--border); border-radius:10px; padding:12px;">
+            <div style="font-size:13px; font-weight:800; color:var(--primary); margin-bottom:4px;">
+              🌊 出漁不可（荒天）判定の基準値 <span style="font-size:10px; background:#FEF3C7; color:#92400E; padding:1px 5px; border-radius:4px;">仮設定</span>
+            </div>
+            <p style="font-size:11px; color:var(--subtext); margin-bottom:8px;">
+              単価一覧表の見出しに「荒天」印をつける風速と波高のしきい値です（初期値は仮設定）。
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <div class="input-group">
+                <label style="font-size:10px;">基準風速 (m/s)</label>
+                <div style="display:flex; align-items:center; background:#FFF; border:1.5px solid var(--border); border-radius:8px; padding-right:6px;">
+                  <input type="number" id="cfgStormWind" class="input-field" step="0.5" min="5" max="30" value="10.0" style="border:none; padding:8px 4px; text-align:right;">
+                  <span style="font-size:12px; font-weight:800; color:var(--subtext);">m/s</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label style="font-size:10px;">基準波高 (m)</label>
+                <div style="display:flex; align-items:center; background:#FFF; border:1.5px solid var(--border); border-radius:8px; padding-right:6px;">
+                  <input type="number" id="cfgStormWave" class="input-field" step="0.1" min="1.0" max="6.0" value="2.4" style="border:none; padding:8px 4px; text-align:right;">
+                  <span style="font-size:12px; font-weight:800; color:var(--subtext);">m</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <button type="button" class="btn-primary-action" onclick="saveUserSettings(); showToast('設定を保存しました');">
@@ -815,11 +1064,26 @@
       <span class="nav-icon">🏆</span>
       <span>2. 手取り判定</span>
     </button>
+    <button type="button" class="nav-btn" data-tab="matrix" onclick="switchTab('matrix')">
+      <span class="nav-icon">📊</span>
+      <span>3. 単価一覧</span>
+    </button>
     <button type="button" class="nav-btn" data-tab="settings" onclick="switchTab('settings')">
       <span class="nav-icon">⚙️</span>
-      <span>3. 経費・設定</span>
+      <span>4. 経費・設定</span>
     </button>
   </nav>
+
+  <!-- 単価一覧セル詳細モーダル (タップ時に表示) -->
+  <div id="cellDetailModal" class="modal-backdrop" onclick="if(event.target===this)closeCellDetailModal()">
+    <div class="modal-sheet" style="max-height:85vh;">
+      <div class="modal-head">
+        <strong id="cellModalTitle" style="font-size:16px; color:var(--primary);">魚種予測詳細</strong>
+        <button type="button" onclick="closeCellDetailModal()" style="border:none; background:#E2E8F0; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">閉じる</button>
+      </div>
+      <div id="cellModalBody" style="margin-top:10px; font-size:12px; line-height:1.5;"></div>
+    </div>
+  </div>
 
   <!-- 魚種選択モーダル (キーボード非表示・カテゴリ一覧選択) -->
   <div id="fishModal" class="modal-backdrop" onclick="if(event.target===this)closeFishModal()">
@@ -862,8 +1126,15 @@
       transportDays: null,
       feeYaePct: 5.0,
       feeNahaDistPct: 5.0,
-      feeTomariPct: 5.5
+      feeTomariPct: 5.5,
+      stormWind: 10.0,
+      stormWave: 2.4
     };
+
+    // 単価一覧マトリクス状態
+    let matrixSelectedMarket = "134"; // "134", "119", "138", "naha_net"
+    let matrixHorizon = 7;           // 7 or 14
+    let matrixSortMode = "group";    // "group", "tomorrow_desc", "day2_desc", "surge_desc"
 
     // --- 初期化 ---
     window.addEventListener("DOMContentLoaded", function() {
@@ -885,7 +1156,10 @@
           userSettings = Object.assign(userSettings, JSON.parse(saved));
         }
         const b = localStorage.getItem("okinawa_fish_user_base");
-        if (b) userBase = b;
+        if (b) {
+          userBase = b;
+          matrixSelectedMarket = (b === "yaeyama") ? "134" : "119";
+        }
       } catch(e) {}
 
       document.getElementById("cfgPackingCost").value = (userSettings.packingCost !== null && userSettings.packingCost !== undefined) ? userSettings.packingCost : "";
@@ -896,6 +1170,10 @@
         document.getElementById("cfgFeeYae").value = (userSettings.feeYaePct !== undefined) ? userSettings.feeYaePct : 5.0;
         document.getElementById("cfgFeeNahaDist").value = (userSettings.feeNahaDistPct !== undefined) ? userSettings.feeNahaDistPct : 5.0;
         document.getElementById("cfgFeeTomari").value = (userSettings.feeTomariPct !== undefined) ? userSettings.feeTomariPct : 5.5;
+      }
+      if (document.getElementById("cfgStormWind")) {
+        document.getElementById("cfgStormWind").value = (userSettings.stormWind !== undefined) ? userSettings.stormWind : 10.0;
+        document.getElementById("cfgStormWave").value = (userSettings.stormWave !== undefined) ? userSettings.stormWave : 2.4;
       }
       updateBaseUi();
     }
@@ -920,12 +1198,18 @@
       const fTomari = parseFloat(document.getElementById("cfgFeeTomari").value);
       userSettings.feeTomariPct = (!isNaN(fTomari) && fTomari >= 0) ? fTomari : 5.5;
 
+      const sWind = parseFloat(document.getElementById("cfgStormWind")?.value);
+      userSettings.stormWind = (!isNaN(sWind) && sWind > 0) ? sWind : 10.0;
+      const sWave = parseFloat(document.getElementById("cfgStormWave")?.value);
+      userSettings.stormWave = (!isNaN(sWave) && sWave > 0) ? sWave : 2.4;
+
       try {
         localStorage.setItem("okinawa_fish_user_settings", JSON.stringify(userSettings));
         localStorage.setItem("okinawa_fish_user_base", userBase);
       } catch(e) {}
 
       runSimulation();
+      renderMatrixTable();
     }
 
     function resetDefaultSettings() {
@@ -936,7 +1220,9 @@
         transportDays: null,
         feeYaePct: 5.0,
         feeNahaDistPct: 5.0,
-        feeTomariPct: 5.5
+        feeTomariPct: 5.5,
+        stormWind: 10.0,
+        stormWave: 2.4
       };
       document.getElementById("cfgPackingCost").value = "";
       document.getElementById("cfgShippingCost").value = "";
@@ -945,6 +1231,8 @@
       document.getElementById("cfgFeeYae").value = 5.0;
       document.getElementById("cfgFeeNahaDist").value = 5.0;
       document.getElementById("cfgFeeTomari").value = 5.5;
+      if (document.getElementById("cfgStormWind")) document.getElementById("cfgStormWind").value = 10.0;
+      if (document.getElementById("cfgStormWave")) document.getElementById("cfgStormWave").value = 2.4;
       saveUserSettings();
       showToast("初期状態（未設定）に戻しました");
     }
@@ -981,6 +1269,7 @@
       renderFishRows();
       buildCategorizedFishModal();
       renderAccuracySummary();
+      renderMatrixTable();
     }
 
     // 最終更新から24時間経過しているかチェック
@@ -1000,11 +1289,15 @@
     // --- 拠点切り替え ---
     function selectBase(base) {
       userBase = base;
+      if (matrixSelectedMarket !== "naha_net") {
+        matrixSelectedMarket = (base === "yaeyama") ? "134" : "119";
+      }
       try {
         localStorage.setItem("okinawa_fish_user_base", userBase);
       } catch(e) {}
       updateBaseUi();
       runSimulation();
+      renderMatrixTable();
     }
 
     function updateBaseUi() {
@@ -1030,6 +1323,7 @@
         window.scrollTo(0, 0);
       }
       if (tabId === "results") runSimulation();
+      if (tabId === "matrix") renderMatrixTable();
     }
 
     function selectHorizon(h) {
@@ -1800,6 +2094,503 @@
         </div>
       `;
       container.innerHTML = html;
+    }
+
+    // --- 単価一覧マトリクス実装 ---
+    function selectMatrixMarket(mkt) {
+      matrixSelectedMarket = mkt;
+      document.getElementById("btnMatMkt134")?.classList.toggle("active", mkt === "134");
+      document.getElementById("btnMatMkt119")?.classList.toggle("active", mkt === "119");
+      document.getElementById("btnMatMkt138")?.classList.toggle("active", mkt === "138");
+      document.getElementById("btnMatMktNet")?.classList.toggle("active", mkt === "naha_net");
+      renderMatrixTable();
+    }
+
+    function changeMatrixSort(mode) {
+      matrixSortMode = mode;
+      renderMatrixTable();
+    }
+
+    function changeMatrixHorizon(h) {
+      matrixHorizon = parseInt(h, 10) || 7;
+      renderMatrixTable();
+    }
+
+    function closeCellDetailModal() {
+      document.getElementById("cellDetailModal").style.display = "none";
+    }
+
+    function renderMatrixTable() {
+      const container = document.getElementById("matrixTableContainer");
+      if (!container) return;
+      if (!appData || !appData.predictions || !appData.speciesList) {
+        container.innerHTML = "<div style='padding:20px; text-align:center; color:#64748B;'>予測データを読み込み中です...</div>";
+        return;
+      }
+
+      // 最終更新日時の同期
+      if (appData.status && appData.status.updateTimeDetail) {
+        const lup = document.getElementById("matrixLastUpdate");
+        if (lup) lup.textContent = "更新: " + appData.status.updateTimeDetail;
+      }
+
+      // ピルボタンスタイルの反映
+      document.getElementById("btnMatMkt134")?.classList.toggle("active", matrixSelectedMarket === "134");
+      document.getElementById("btnMatMkt119")?.classList.toggle("active", matrixSelectedMarket === "119");
+      document.getElementById("btnMatMkt138")?.classList.toggle("active", matrixSelectedMarket === "138");
+      document.getElementById("btnMatMktNet")?.classList.toggle("active", matrixSelectedMarket === "naha_net");
+
+      // 輸送費バナー（那覇手取り時）
+      const banner = document.getElementById("matrixFreightBanner");
+      const bannerText = document.getElementById("matrixFreightText");
+      const isNet = (matrixSelectedMarket === "naha_net");
+      const tDays = (userSettings.transportDays !== null && userSettings.transportDays !== undefined) ? userSettings.transportDays : 1;
+      const freightUnset = (userSettings.packingCost === null || userSettings.shippingCost === null || userSettings.transportDays === null);
+      const freightPerKg = (!freightUnset) ? (((userSettings.packingCost || 0) + (userSettings.shippingCost || 0)) / (userSettings.boxCapacity || 10)) : 0;
+
+      if (banner && bannerText) {
+        if (isNet) {
+          banner.style.display = "block";
+          if (freightUnset) {
+            banner.style.background = "#FEF3C7";
+            banner.style.borderColor = "#FDE68A";
+            banner.style.color = "#92400E";
+            bannerText.innerHTML = "⚠️ <strong>輸送費未設定</strong>: 梱包費・送料・日数が未設定のため、那覇セリ値から販売手数料のみ引いた金額を表示しています。<a href='#' onclick='switchTab(\"settings\");return false;' style='text-decoration:underline; font-weight:800; color:#B45309; margin-left:4px;'>⚙️ 経費・設定タブで設定</a>";
+          } else {
+            banner.style.background = "#EFF6FF";
+            banner.style.borderColor = "#BFDBFE";
+            banner.style.color = "#1E40AF";
+            bannerText.innerHTML = `✈️ <strong>那覇手取り単価</strong>: 輸送日数 ${tDays}日 / 梱包+運賃控除 ${Math.round(freightPerKg).toLocaleString()}円/kg / 各市場手数料差引済（泊: ${userSettings.feeTomariPct}%, 那覇: ${userSettings.feeNahaDistPct}%）`;
+          }
+        } else {
+          banner.style.display = "none";
+        }
+      }
+
+      // 天気とカレンダーの対象地点
+      const weatherLoc = (matrixSelectedMarket === "134") ? "yaeyama" : "naha";
+      const weatherMap = (appData.weatherForecast && appData.weatherForecast[weatherLoc]) ? appData.weatherForecast[weatherLoc] : {};
+
+      // 表示日数列
+      const leads = [];
+      for (let l = 1; l <= matrixHorizon; l++) {
+        leads.push(l);
+      }
+
+      // 列ヘッダー情報の収集
+      const colMeta = leads.map(function(lead) {
+        const dateStr = (appData.leadDates && appData.leadDates[String(lead)]) ? appData.leadDates[String(lead)] : "";
+        let dowStr = "";
+        let mDateStr = "";
+        if (dateStr) {
+          const dt = new Date(dateStr.replace(/-/g, "/"));
+          const dowArr = ["日","月","火","水","木","金","土"];
+          dowStr = dowArr[dt.getDay()];
+          const parts = dateStr.split("-");
+          mDateStr = `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}(${dowStr})`;
+        } else {
+          mDateStr = `${lead}日先`;
+        }
+
+        // 天気情報
+        const wData = weatherMap[dateStr] || null;
+        let isStorm = false;
+        if (wData) {
+          const windThresh = userSettings.stormWind || 10.0;
+          const waveThresh = userSettings.stormWave || 2.4;
+          if (wData.wind >= windThresh || wData.wave >= waveThresh) {
+            isStorm = true;
+          }
+        }
+
+        // 休市判定
+        let isClosed = false;
+        if (isNet) {
+          // 那覇到着セリ日
+          const aucLead = lead + tDays;
+          const aucDate = (appData.leadDates && appData.leadDates[String(aucLead)]) ? appData.leadDates[String(aucLead)] : "";
+          const stat119 = (appData.marketCalendar && appData.marketCalendar["119"] && aucDate) ? appData.marketCalendar["119"][aucDate] : "開市予定";
+          const stat138 = (appData.marketCalendar && appData.marketCalendar["138"] && aucDate) ? appData.marketCalendar["138"][aucDate] : "開市予定";
+          if (stat119 === "休市" && stat138 === "休市") {
+            isClosed = true;
+          }
+        } else {
+          const mstat = (appData.marketCalendar && appData.marketCalendar[matrixSelectedMarket] && dateStr) ? appData.marketCalendar[matrixSelectedMarket][dateStr] : "開市予定";
+          if (mstat === "休市") isClosed = true;
+        }
+
+        return {
+          lead: lead,
+          dateStr: dateStr,
+          titleStr: (lead === 1) ? `明日<br>${mDateStr}` : (lead === 2 ? `明後日<br>${mDateStr}` : mDateStr),
+          wData: wData,
+          isStorm: isStorm,
+          isClosed: isClosed
+        };
+      });
+
+      // 魚種リストの準備
+      let species = appData.speciesList.slice();
+
+      // 各魚種のソート用指標（明日単価、明後日単価、上がり幅）を算出
+      species.forEach(function(sp) {
+        // 明日(lead 1)
+        const cell1 = calcMatrixCellData(sp, 1);
+        sp._price1 = cell1.mode || 0;
+        sp._diffPct1 = cell1.diffPct || 0;
+
+        // 明後日(lead 2)
+        const cell2 = calcMatrixCellData(sp, 2);
+        sp._price2 = cell2.mode || 0;
+      });
+
+      // 並べ替え処理
+      if (matrixSortMode === "tomorrow_desc") {
+        species.sort(function(a, b) { return b._price1 - a._price1; });
+      } else if (matrixSortMode === "day2_desc") {
+        species.sort(function(a, b) { return b._price2 - a._price2; });
+      } else if (matrixSortMode === "surge_desc") {
+        species.sort(function(a, b) { return b._diffPct1 - a._diffPct1; });
+      } else {
+        // まとまり順（lobster -> reef -> pelagic -> dead_lobster）
+        const catOrder = { "lobster": 1, "reef": 2, "pelagic": 3, "dead_lobster": 4 };
+        species.sort(function(a, b) {
+          const oA = catOrder[a.category] || 99;
+          const oB = catOrder[b.category] || 99;
+          if (oA !== oB) return oA - oB;
+          return 0;
+        });
+      }
+
+      // テーブルHTMLの構築
+      let html = `<table class="matrix-table">`;
+      html += `<thead><tr>`;
+      html += `<th class="matrix-corner-th">魚種 ＼ 日程</th>`;
+      colMeta.forEach(function(cm) {
+        html += `<th class="matrix-date-th ${cm.isClosed ? 'cell-closed' : ''}">`;
+        html += `<div class="matrix-date-title">${cm.titleStr}</div>`;
+        if (cm.isStorm) {
+          html += `<div class="badge-storm">⚠️ 荒天</div>`;
+        }
+        if (cm.isClosed) {
+          html += `<div class="badge-closed-mkt">休市</div>`;
+        }
+        if (cm.wData) {
+          html += `<div class="matrix-weather-box">💨${cm.wData.wind}m 🌊${cm.wData.wave}m</div>`;
+        }
+        html += `</th>`;
+      });
+      html += `</tr></thead>`;
+      html += `<tbody>`;
+
+      let lastCategory = null;
+      const catLabels = {
+        "lobster": "🦞 イセエビ類 (生け保管・遠隔出荷)",
+        "reef": "🐠 高級地物 (イラブチャー・アカジン等)",
+        "pelagic": "🐟 回遊魚・その他",
+        "dead_lobster": "🦐 死にエビ / 冷凍"
+      };
+
+      species.forEach(function(sp, spIdx) {
+        // まとまり順の場合、カテゴリ区切り見出し行を挿入
+        if (matrixSortMode === "group" && sp.category !== lastCategory) {
+          lastCategory = sp.category;
+          const label = catLabels[sp.category] || "その他魚種";
+          html += `<tr><td colspan="${colMeta.length + 1}" class="matrix-cat-th">${label}</td></tr>`;
+        }
+
+        html += `<tr>`;
+        // 左固定列: 魚種名
+        html += `<td class="matrix-fish-td">`;
+        html += `<div class="matrix-fish-main" title="${sp.dialectName}">${sp.dialectName}</div>`;
+        html += `<div class="matrix-fish-sub" title="${sp.wameiName}">(${sp.wameiName})</div>`;
+        html += `</td>`;
+
+        // 日付セル
+        colMeta.forEach(function(cm) {
+          const cdata = calcMatrixCellData(sp, cm.lead);
+
+          if (cdata.isClosed) {
+            html += `<td class="matrix-cell-td cell-closed" onclick="openCellDetailModal(${spIdx}, ${cm.lead})">`;
+            html += `<div style="font-weight:800; color:#94A3B8;">休市</div>`;
+            html += `</td>`;
+          } else if (cdata.isHyphen) {
+            html += `<td class="matrix-cell-td" style="color:#94A3B8;" onclick="openCellDetailModal(${spIdx}, ${cm.lead})">`;
+            html += `<div>―</div>`;
+            html += `</td>`;
+          } else {
+            let colorCls = "cell-normal";
+            let deltaColor = "#64748B";
+            if (cdata.diffPct >= 10) {
+              colorCls = "cell-up-high";
+              deltaColor = "#991B1B";
+            } else if (cdata.diffPct >= 3) {
+              colorCls = "cell-up-mid";
+              deltaColor = "#B91C1C";
+            } else if (cdata.diffPct <= -3) {
+              colorCls = "cell-down";
+              deltaColor = "#1E40AF";
+            }
+
+            const isMuted = (cdata.conf === "参考" || cdata.isRef);
+            const deltaSign = (cdata.diffPct > 0) ? "+" : "";
+            const deltaLabel = isNet ? `${deltaSign}${Math.round(cdata.diffPct)}%` : `${deltaSign}${Math.round(cdata.diffPct)}%`;
+
+            html += `<td class="matrix-cell-td ${colorCls}" onclick="openCellDetailModal(${spIdx}, ${cm.lead})" style="${isMuted ? 'opacity:0.85;' : ''}">`;
+            html += `<div class="matrix-price-num">${cdata.mode.toLocaleString()}<span style="font-size:9px; font-weight:700;">円</span></div>`;
+            html += `<div class="matrix-delta-sub" style="color:${deltaColor};">${deltaLabel}</div>`;
+            html += `</td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+
+      // 現在表示中の魚種リストをキャッシュ（モーダル詳細用）
+      window._matrixCurrentSpecies = species;
+      window._matrixColMeta = colMeta;
+    }
+
+    // 各セルの価格・指標計算関数
+    function calcMatrixCellData(sp, lead) {
+      const isNet = (matrixSelectedMarket === "naha_net");
+      const tDays = (userSettings.transportDays !== null && userSettings.transportDays !== undefined) ? userSettings.transportDays : 1;
+      const freightUnset = (userSettings.packingCost === null || userSettings.shippingCost === null || userSettings.transportDays === null);
+      const freightPerKg = (!freightUnset) ? (((userSettings.packingCost || 0) + (userSettings.shippingCost || 0)) / (userSettings.boxCapacity || 10)) : 0;
+      const dateStr = (appData.leadDates && appData.leadDates[String(lead)]) ? appData.leadDates[String(lead)] : "";
+
+      if (isNet) {
+        // 那覇手取り単価計算
+        const aucLead = lead + tDays;
+        if (aucLead > 14 || (aucLead > 7 && sp.category !== "lobster")) {
+          return { isHyphen: true, mode: 0, diffPct: 0 };
+        }
+        const aucDate = (appData.leadDates && appData.leadDates[String(aucLead)]) ? appData.leadDates[String(aucLead)] : "";
+        const stat119 = (appData.marketCalendar && appData.marketCalendar["119"] && aucDate) ? appData.marketCalendar["119"][aucDate] : "開市予定";
+        const stat138 = (appData.marketCalendar && appData.marketCalendar["138"] && aucDate) ? appData.marketCalendar["138"][aucDate] : "開市予定";
+
+        if (stat119 === "休市" && stat138 === "休市") {
+          return { isClosed: true, mode: 0, diffPct: 0 };
+        }
+
+        const feeTomari = (userSettings.feeTomariPct !== undefined ? userSettings.feeTomariPct : 5.5) / 100.0;
+        const feeNahaDist = (userSettings.feeNahaDistPct !== undefined ? userSettings.feeNahaDistPct : 5.0) / 100.0;
+
+        const predTomari = (stat119 !== "休市") ? getPred(sp.dialectName, aucLead, "JF泊", "119") : null;
+        const predNahaDist = (stat138 !== "休市") ? getPred(sp.dialectName, aucLead, "那覇地区", "138") : null;
+
+        const netTomari = predTomari ? Math.round(predTomari.mode * (1.0 - feeTomari) - freightPerKg) : -999999;
+        const netNahaDist = predNahaDist ? Math.round(predNahaDist.mode * (1.0 - feeNahaDist) - freightPerKg) : -999999;
+
+        const bestIsTomari = (netTomari >= netNahaDist);
+        const bestMode = Math.max(0, bestIsTomari ? netTomari : netNahaDist);
+        const bestPred = bestIsTomari ? predTomari : predNahaDist;
+        const bestFee = bestIsTomari ? feeTomari : feeNahaDist;
+        const bestMktName = bestIsTomari ? "JF泊(119)" : "那覇地区(138)";
+
+        const bestLow = bestPred ? Math.max(0, Math.round(bestPred.low * (1.0 - bestFee) - freightPerKg)) : 0;
+        const bestHigh = bestPred ? Math.max(0, Math.round(bestPred.high * (1.0 - bestFee) - freightPerKg)) : 0;
+
+        // 八重山地元28日平均との比較
+        const localMa28 = (appData.ma28Prices && appData.ma28Prices["134_" + sp.id]) ? appData.ma28Prices["134_" + sp.id] : (bestPred ? bestPred.mode : 0);
+        let diffPct = 0;
+        if (localMa28 > 0) {
+          diffPct = ((bestMode - localMa28) / localMa28) * 100.0;
+        }
+
+        return {
+          isClosed: false,
+          isHyphen: false,
+          mode: bestMode,
+          low: bestLow,
+          high: bestHigh,
+          conf: bestPred ? bestPred.conf : "B",
+          rationale: bestPred ? bestPred.rationale : "",
+          method: bestPred ? bestPred.method : "水準+変動",
+          ma28: localMa28,
+          diffPct: diffPct,
+          isNet: true,
+          bestMktName: bestMktName,
+          bestRawMode: bestPred ? bestPred.mode : 0,
+          bestFeePct: (bestFee * 100).toFixed(1),
+          freightPerKg: freightPerKg,
+          aucLead: aucLead,
+          aucDate: aucDate,
+          stat119: stat119,
+          stat138: stat138,
+          predTomari: predTomari,
+          predNahaDist: predNahaDist,
+          netTomari: netTomari,
+          netNahaDist: netNahaDist
+        };
+      } else {
+        // 単一市場モード (134, 119, 138)
+        if (lead > 7 && sp.category !== "lobster") {
+          return { isHyphen: true, mode: 0, diffPct: 0 };
+        }
+
+        const mstat = (appData.marketCalendar && appData.marketCalendar[matrixSelectedMarket] && dateStr) ? appData.marketCalendar[matrixSelectedMarket][dateStr] : "開市予定";
+        if (mstat === "休市") {
+          return { isClosed: true, mode: 0, diffPct: 0 };
+        }
+
+        const mktName = (matrixSelectedMarket === "134") ? "八重山漁協" : ((matrixSelectedMarket === "119") ? "JF泊" : "那覇地区");
+        const pred = getPred(sp.dialectName, lead, mktName, matrixSelectedMarket);
+        const ma28 = (appData.ma28Prices && appData.ma28Prices[matrixSelectedMarket + "_" + sp.id]) ? appData.ma28Prices[matrixSelectedMarket + "_" + sp.id] : pred.mode;
+
+        let diffPct = 0;
+        if (ma28 > 0) {
+          diffPct = ((pred.mode - ma28) / ma28) * 100.0;
+        }
+
+        return {
+          isClosed: false,
+          isHyphen: false,
+          mode: pred.mode,
+          low: pred.low,
+          high: pred.high,
+          conf: pred.conf,
+          rationale: pred.rationale,
+          method: pred.method,
+          ma28: ma28,
+          diffPct: diffPct,
+          isNet: false,
+          mktName: mktName
+        };
+      }
+    }
+
+    // セルタップ時の詳細モーダル表示
+    function openCellDetailModal(spIdx, lead) {
+      if (!window._matrixCurrentSpecies || !window._matrixCurrentSpecies[spIdx]) return;
+      const sp = window._matrixCurrentSpecies[spIdx];
+      const col = window._matrixColMeta.find(function(c) { return c.lead === lead; });
+      const cdata = calcMatrixCellData(sp, lead);
+
+      const modal = document.getElementById("cellDetailModal");
+      const title = document.getElementById("cellModalTitle");
+      const body = document.getElementById("cellModalBody");
+
+      const marketLabel = (matrixSelectedMarket === "134") ? "八重山漁協(134)" : ((matrixSelectedMarket === "119") ? "JF泊市場(119)" : ((matrixSelectedMarket === "138") ? "那覇地区(138)" : "那覇手取り単価"));
+      title.innerHTML = `🐟 ${sp.dialectName} (${sp.wameiName})`;
+
+      let html = "";
+
+      // 基本情報バナー
+      html += `
+        <div style="background:#F1F5F9; border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:900; color:#1E3A8A; font-size:13px;">📅 対象日: ${col.dateStr} (${col.titleStr.replace('<br>', ' ')})</span>
+            <span style="font-size:11px; font-weight:800; background:#E2E8F0; padding:2px 6px; border-radius:4px;">${lead}日先</span>
+          </div>
+          <div style="font-size:11px; color:#475569; margin-top:2px;">
+            出荷・閲覧先: <strong>${marketLabel}</strong>
+          </div>
+        </div>
+      `;
+
+      if (cdata.isClosed) {
+        html += `
+          <div style="background:#FEE2E2; border:1px solid #FCA5A5; color:#991B1B; padding:12px; border-radius:8px; text-align:center; font-weight:800;">
+            ⚠️ この日は市場が休市のためセリは行われません。
+          </div>
+        `;
+      } else if (cdata.isHyphen) {
+        html += `
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; color:#64748B; padding:12px; border-radius:8px; text-align:center;">
+            この魚種は7日先までの予測対象です（14日先予測は生け保管可能なイセエビ類のみ提供）。
+          </div>
+        `;
+      } else {
+        // 価格表示ブロック
+        const deltaSign = (cdata.diffPct >= 0) ? "+" : "";
+        html += `
+          <div style="background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:10px; padding:10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+              <div>
+                <div style="font-size:11px; color:#64748B; font-weight:700;">${cdata.isNet ? '手取り単価（最有力値）' : '予測セリ単価（最有力値）'}</div>
+                <div style="font-size:24px; font-weight:900; color:#0F172A; letter-spacing:-0.5px;">
+                  ${cdata.mode.toLocaleString()} <span style="font-size:14px;">円/kg</span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:10px; color:#64748B;">直近28日平均比</div>
+                <div style="font-size:14px; font-weight:900; color:${cdata.diffPct >= 3 ? '#DC2626' : (cdata.diffPct <= -3 ? '#2563EB' : '#1E293B')};">
+                  ${deltaSign}${cdata.diffPct.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed #E2E8F0; font-size:11px;">
+              <span style="color:#64748B; font-weight:700;">予測上下限:</span>
+              <span style="font-weight:800; color:#1E40AF;">${cdata.low.toLocaleString()} 〜 ${cdata.high.toLocaleString()} 円/kg</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:11px;">
+              <span style="color:#64748B; font-weight:700;">28日平均相場:</span>
+              <span style="font-weight:700; color:#334155;">${cdata.ma28 ? cdata.ma28.toLocaleString() + ' 円/kg' : '―'}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:11px;">
+              <span style="color:#64748B; font-weight:700;">確信度 / 採用手法:</span>
+              <span>ランク${cdata.conf} ${getMethodBadge(cdata.method)}</span>
+            </div>
+          </div>
+        `;
+
+        // 変動要因・分析
+        if (cdata.rationale) {
+          html += `
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+              <div style="font-weight:800; color:#166534; font-size:11px; margin-bottom:2px;">
+                💡 日ごとの変動要因・相場見通し
+              </div>
+              <div style="font-size:11px; color:#15803D; line-height:1.4;">
+                ${cdata.rationale}
+              </div>
+            </div>
+          `;
+        }
+
+        // 那覇手取りモードの内訳
+        if (cdata.isNet) {
+          html += `
+            <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+              <div style="font-weight:800; color:#1E40AF; font-size:11px; margin-bottom:4px;">
+                ✈️ 那覇手取り単価の内訳（1kgあたり）
+              </div>
+              <div style="font-size:11px; line-height:1.5; color:#1E3A8A;">
+                ・発送日: <strong>${col.dateStr}</strong> ➔ セリ日: <strong>${cdata.aucDate}</strong> (${cdata.aucLead}日先・輸送+${cdata.aucLead - lead}日)<br>
+                ・優位出荷先: <strong>${cdata.bestMktName}</strong><br>
+                ・那覇セリ値（最有力）: ${cdata.bestRawMode.toLocaleString()} 円/kg<br>
+                ・市場販売手数料（控除率 ${cdata.bestFeePct}%）: -${Math.round(cdata.bestRawMode * (cdata.bestFeePct / 100)).toLocaleString()} 円/kg<br>
+                ・梱包資材＋那覇向け送料控除: -${Math.round(cdata.freightPerKg).toLocaleString()} 円/kg<br>
+                <div style="margin-top:4px; padding-top:4px; border-top:1px solid #BFDBFE; font-weight:800; color:#1E40AF;">
+                  ➔ 手元に残る純手取り: ${cdata.mode.toLocaleString()} 円/kg
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // 気象・海況情報
+        if (col.wData) {
+          html += `
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px 10px;">
+              <div style="font-weight:800; color:#334155; font-size:11px; margin-bottom:2px;">
+                🌊 気象・出漁目安 (${weatherLoc === 'yaeyama' ? '八重山海域' : '沖縄本島海域'})
+              </div>
+              <div style="font-size:11px; color:#475569;">
+                最大風速: <strong>${col.wData.wind} m/s</strong> ／ 最大波高: <strong>${col.wData.wave} m</strong> ／ 降水量: <strong>${col.wData.precip} mm</strong>
+              </div>
+              ${col.isStorm ? `<div style="color:#DC2626; font-size:10px; font-weight:800; margin-top:2px;">⚠️ 荒天基準（風速${userSettings.stormWind}m/sまたは波高${userSettings.stormWave}m）を超過しています</div>` : ''}
+            </div>
+          `;
+        }
+      }
+
+      body.innerHTML = html;
+      modal.style.display = "flex";
     }
   </script>
 </body>
