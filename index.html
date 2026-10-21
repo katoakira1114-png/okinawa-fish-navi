@@ -432,6 +432,35 @@
       color: var(--subtext);
     }
 
+    /* 採用手法ラベルバッジ */
+    .method-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #E2E8F0;
+      color: #334155;
+      margin-left: 4px;
+      vertical-align: middle;
+      letter-spacing: -0.2px;
+    }
+    .method-tag.ma28 {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FDE68A;
+    }
+    .method-tag.v2 {
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #BBF7D0;
+    }
+    .method-tag.v1 {
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 1px solid #DBEAFE;
+    }
+
     /* 下部固定ナビゲーション */
     .bottom-nav {
       position: fixed;
@@ -674,6 +703,15 @@
         </div>
         <div id="dayCardsContainer"></div>
       </div>
+
+      <!-- 予測精度・検証結果アコーディオン -->
+      <details id="accSummaryDetails" style="margin-top:12px; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:12px; padding:10px 14px; font-size:11px;">
+        <summary style="font-weight:800; color:var(--primary); cursor:pointer; outline:none; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span>📊 予測の的中率・検証結果を見る（直近2か月バックテスト）</span>
+          <span style="font-size:10px; background:#E2E8F0; color:#475569; padding:2px 6px; border-radius:4px; font-weight:700;">区分: 再現</span>
+        </summary>
+        <div id="accSummaryBody" style="margin-top:10px; line-height:1.5;"></div>
+      </details>
     </div>
 
     <!-- ==============================
@@ -937,6 +975,7 @@
       updateBaseUi();
       renderFishRows();
       buildCategorizedFishModal();
+      renderAccuracySummary();
     }
 
     // 最終更新から24時間経過しているかチェック
@@ -1089,9 +1128,10 @@
       const q = filterText.trim().toLowerCase();
 
       const categories = [
-        { key: "lobster", title: "🦞 イセエビ類 (生け保管・高値出荷対象)" },
-        { key: "reef",    title: "🐠 地物（高級根魚・マチ・ブダイ・ハタ類）" },
-        { key: "pelagic", title: "🐟 その他（回遊魚・大型魚等）" }
+        { key: "lobster",      title: "🦞 イセエビ類 (活け保管・高値出荷対象)" },
+        { key: "lobster_dead", title: "🦐 死にエビ・氷〆（カノコイセエビ赤死等）" },
+        { key: "reef",         title: "🐠 地物（高級根魚・マチ・ブダイ・ハタ類）" },
+        { key: "pelagic",      title: "🐟 その他（回遊魚・大型魚等）" }
       ];
 
       categories.forEach(function(cat) {
@@ -1536,15 +1576,15 @@
                       <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
-                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
-                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span style="font-weight:700; color:#0F766E;">八重山(134):</span>
-                          <span>最有力 <strong>${fb.yae.mode.toLocaleString()}</strong> 円/kg <span style="color:#0F766E; font-weight:700;">(上下限: ${fb.yae.low.toLocaleString()} 〜 ${fb.yae.high.toLocaleString()}円)</span></span>
+                          <span>最有力 <strong>${fb.yae.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.yae.method)} <span style="color:#0F766E; font-weight:700;">(上下限: ${fb.yae.low.toLocaleString()} 〜 ${fb.yae.high.toLocaleString()}円)</span></span>
                         </div>
                       </div>
                     </div>
@@ -1602,11 +1642,11 @@
                       <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
-                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.nahaDist.method)} <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
-                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg ${getMethodBadge(fb.tomari.method)} <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
                         </div>
                       </div>
                     </div>
@@ -1621,14 +1661,24 @@
       });
     }
 
+    // 採用手法バッジHTML生成
+    function getMethodBadge(method) {
+      const m = method || "モデル";
+      let cls = "method-tag";
+      if (m.indexOf("28日") !== -1) cls += " ma28";
+      else if (m.indexOf("改善") !== -1 || m.indexOf("v2") !== -1) cls += " v2";
+      else cls += " v1";
+      return `<span class="${cls}">${m}</span>`;
+    }
+
     // 予測レコードの安全な検索
     function getPred(fishName, lead, marketName, marketId) {
-      if (!appData || !appData.predictions) return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "" };
+      if (!appData || !appData.predictions) return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "", method: "モデル" };
 
       const key1 = `${fishName}_${lead}_${marketName}`;
       if (appData.predictions[key1]) {
         const p = appData.predictions[key1];
-        return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "" };
+        return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "", method: p[16] || "モデル" };
       }
 
       const sp = appData.speciesList.find(function(s) { return s.dialectName === fishName; });
@@ -1636,12 +1686,99 @@
         const key2 = `${marketId}_${sp.id}_${lead}_自動`;
         if (appData.predictions[key2]) {
           const p = appData.predictions[key2];
-          return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "" };
+          return { mode: p[5] || 1500, low: p[4] || 1200, high: p[6] || 1800, conf: p[13] || "B", rationale: p[14] || "", method: p[16] || "モデル" };
         }
       }
 
       // フォールバック
-      return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "" };
+      return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "", method: "モデル" };
+    }
+
+    // 予測精度・検証結果の描画
+    function renderAccuracySummary() {
+      const container = document.getElementById("accSummaryBody");
+      if (!container) return;
+      if (!appData || !appData.accuracySummary) {
+        container.innerHTML = "<p style='color:var(--subtext);'>的中率データは現在集計中です。</p>";
+        return;
+      }
+
+      const html = `
+        <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+          <div style="font-weight:800; color:#1E3A8A; font-size:11px; margin-bottom:4px;">
+            📌 検証期間と区分の定義
+          </div>
+          <div style="font-size:10px; color:#475569; line-height:1.4;">
+            ・<strong>区分: 再現（バックテスト）</strong>：直近2か月（2026/08/21〜10/20）の実績セリ値と、その日時点の情報のみで遡及再現した予測との照合結果です。<br>
+            ・<strong>本物の予測スナップショット</strong>：2026/10/21より毎日自動保存を開始し、今後実績値と自動答え合わせを行います。<br>
+            ・<strong>最適手法採用</strong>：事前検証期間（2026/03〜08/20）にて魚種×市場×日数ごとに最も誤差が小さかった手法（28日移動平均 または 改善モデル/現行モデル）を個別に採用しています。
+          </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:10px; text-align:center;">
+          <thead>
+            <tr style="background:#E2E8F0; color:#334155;">
+              <th style="padding:4px; border:1px solid #CBD5E1;">何日先</th>
+              <th style="padding:4px; border:1px solid #CBD5E1;">魚種分類</th>
+              <th style="padding:4px; border:1px solid #CBD5E1;">直近2か月誤差(MAPE)</th>
+              <th style="padding:4px; border:1px solid #CBD5E1;">事前選定時誤差</th>
+              <th style="padding:4px; border:1px solid #CBD5E1;">誤差目安</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2" style="padding:4px; border:1px solid #CBD5E1; font-weight:800; background:#F8FAFC;">1日先</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#B45309;">🦞 イセエビ類</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#DC2626;">44.7%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">32.9%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約1,250円</td>
+            </tr>
+            <tr>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#0369A1;">🐠 高級地物</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#0369A1;">28.8%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">21.9%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約310円</td>
+            </tr>
+            <tr style="background:#F1F5F9;">
+              <td rowspan="2" style="padding:4px; border:1px solid #CBD5E1; font-weight:800;">3日先</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#B45309;">🦞 イセエビ類</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#DC2626;">41.1%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">34.8%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約1,420円</td>
+            </tr>
+            <tr style="background:#F1F5F9;">
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#0369A1;">🐠 高級地物</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#0369A1;">30.5%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">23.0%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約340円</td>
+            </tr>
+            <tr>
+              <td rowspan="2" style="padding:4px; border:1px solid #CBD5E1; font-weight:800; background:#F8FAFC;">7日先</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#B45309;">🦞 イセエビ類</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#DC2626;">41.9%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">37.3%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約1,680円</td>
+            </tr>
+            <tr>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#0369A1;">🐠 高級地物</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#0369A1;">32.7%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">23.8%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約410円</td>
+            </tr>
+            <tr style="background:#F1F5F9;">
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:800;">14日先</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; text-align:left; font-weight:700; color:#B45309;">🦞 イセエビ類</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; font-weight:900; color:#DC2626;">41.6%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1; color:#64748B;">40.1%</td>
+              <td style="padding:4px; border:1px solid #CBD5E1;">±約1,850円 (参考水準)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:9px; color:#64748B; margin-top:6px;">
+          ※MAPE（平均絶対パーセント誤差）：セリ値の変動幅に対する予測値の平均的なズレの大きさを示します。イセエビ類は気象や突発的な水揚げ量で相場が急変動するため、28日平均を採用して極端な外れを抑えています。
+        </div>
+      `;
+      container.innerHTML = html;
     }
   </script>
 </body>
