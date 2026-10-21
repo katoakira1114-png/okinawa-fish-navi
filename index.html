@@ -2009,8 +2009,8 @@
         }
       }
 
-      // フォールバック
-      return { mode: 1500, low: 1200, high: 1800, conf: "B", rationale: "", method: "モデル" };
+      // 予測なし (その市場で取引されていない魚種)。仮の単価は出さない
+      return { mode: 0, low: 0, high: 0, conf: "予測なし", rationale: "この市場では取引実績が少なく予測がありません", method: "予測なし", missing: true };
     }
 
     // 予測精度・検証結果の描画
@@ -2172,7 +2172,7 @@
       }
 
       // 天気とカレンダーの対象地点
-      const weatherLoc = (matrixSelectedMarket === "134") ? "yaeyama" : "naha";
+      const weatherLoc = (matrixSelectedMarket === "134") ? "ishigaki" : "naha";
       const weatherMap = (appData.weatherForecast && appData.weatherForecast[weatherLoc]) ? appData.weatherForecast[weatherLoc] : {};
 
       // 表示日数列
@@ -2382,8 +2382,13 @@
         const feeTomari = (userSettings.feeTomariPct !== undefined ? userSettings.feeTomariPct : 5.5) / 100.0;
         const feeNahaDist = (userSettings.feeNahaDistPct !== undefined ? userSettings.feeNahaDistPct : 5.0) / 100.0;
 
-        const predTomari = (stat119 !== "休市") ? getPred(sp.dialectName, aucLead, "JF泊", "119") : null;
-        const predNahaDist = (stat138 !== "休市") ? getPred(sp.dialectName, aucLead, "那覇地区", "138") : null;
+        let predTomari = (stat119 !== "休市") ? getPred(sp.dialectName, aucLead, "JF泊", "119") : null;
+        let predNahaDist = (stat138 !== "休市") ? getPred(sp.dialectName, aucLead, "那覇地区", "138") : null;
+        if (predTomari && predTomari.missing) predTomari = null;
+        if (predNahaDist && predNahaDist.missing) predNahaDist = null;
+        if (!predTomari && !predNahaDist) {
+          return { isHyphen: true, mode: 0, diffPct: 0 };
+        }
 
         const netTomari = predTomari ? Math.round(predTomari.mode * (1.0 - feeTomari) - freightPerKg) : -999999;
         const netNahaDist = predNahaDist ? Math.round(predNahaDist.mode * (1.0 - feeNahaDist) - freightPerKg) : -999999;
@@ -2442,6 +2447,9 @@
 
         const mktName = (matrixSelectedMarket === "134") ? "八重山漁協" : ((matrixSelectedMarket === "119") ? "JF泊" : "那覇地区");
         const pred = getPred(sp.dialectName, lead, mktName, matrixSelectedMarket);
+        if (pred.missing) {
+          return { isHyphen: true, mode: 0, diffPct: 0 };
+        }
         const ma28 = (appData.ma28Prices && appData.ma28Prices[matrixSelectedMarket + "_" + sp.id]) ? appData.ma28Prices[matrixSelectedMarket + "_" + sp.id] : pred.mode;
 
         let diffPct = 0;
