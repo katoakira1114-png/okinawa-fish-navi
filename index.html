@@ -1223,6 +1223,7 @@
         let nahaDistGross = 0, nahaDistGrossLow = 0, nahaDistGrossHigh = 0;
         let isNoWeather = (lead > 3);
         let isYaeFallback = false;
+        const fishBreakdowns = [];
 
         activeRows.forEach(function(r) {
           const kg = r._calcKg;
@@ -1245,23 +1246,37 @@
           nahaDistGross += (pNahaDist.mode * kg);
           nahaDistGrossLow += (pNahaDist.low * kg);
           nahaDistGrossHigh += (pNahaDist.high * kg);
+
+          fishBreakdowns.push({
+            fish: r.fish,
+            kg: kg,
+            yae: pYae,
+            tomari: pTomari,
+            nahaDist: pNahaDist
+          });
         });
+
+        // 輸送控除（八重山拠点の場合は送料・資材費を控除、本島拠点の場合は直行のため0円）
+        const transportDeduction = (userBase === "yaeyama") ? (totalPacking + totalFreight) : 0;
 
         // 手取り額の算出（鮮度劣化値下げは完全廃止・0%）
         const yaeNet = Math.round(yaeGross * (1.0 - feeYae));
         const yaeNetLow = Math.round(yaeGrossLow * (1.0 - feeYae));
         const yaeNetHigh = Math.round(yaeGrossHigh * (1.0 - feeYae));
 
-        const tomariNet = Math.round(tomariGross * (1.0 - feeTomari) - (totalPacking + totalFreight));
-        const tomariNetLow = Math.round(tomariGrossLow * (1.0 - feeTomari) - (totalPacking + totalFreight));
-        const tomariNetHigh = Math.round(tomariGrossHigh * (1.0 - feeTomari) - (totalPacking + totalFreight));
+        const tomariNet = Math.round(tomariGross * (1.0 - feeTomari) - transportDeduction);
+        const tomariNetLow = Math.round(tomariGrossLow * (1.0 - feeTomari) - transportDeduction);
+        const tomariNetHigh = Math.round(tomariGrossHigh * (1.0 - feeTomari) - transportDeduction);
 
-        const nahaDistNet = Math.round(nahaDistGross * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
-        const nahaDistNetLow = Math.round(nahaDistGrossLow * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
-        const nahaDistNetHigh = Math.round(nahaDistGrossHigh * (1.0 - feeNahaDist) - (totalPacking + totalFreight));
+        const nahaDistNet = Math.round(nahaDistGross * (1.0 - feeNahaDist) - transportDeduction);
+        const nahaDistNetLow = Math.round(nahaDistGrossLow * (1.0 - feeNahaDist) - transportDeduction);
+        const nahaDistNetHigh = Math.round(nahaDistGrossHigh * (1.0 - feeNahaDist) - transportDeduction);
 
-        const bestNahaNet = Math.max(tomariNet, nahaDistNet);
-        const bestNahaName = (tomariNet >= nahaDistNet) ? "泊魚市場" : "那覇地区漁協";
+        const isTomariWin = (tomariNet >= nahaDistNet);
+        const bestNahaNet = isTomariWin ? tomariNet : nahaDistNet;
+        const bestNahaNetLow = isTomariWin ? tomariNetLow : nahaDistNetLow;
+        const bestNahaNetHigh = isTomariWin ? tomariNetHigh : nahaDistNetHigh;
+        const bestNahaName = isTomariWin ? "泊魚市場" : "那覇地区漁協";
         const isYaeWin = (yaeNet >= bestNahaNet);
         const diff = Math.abs(yaeNet - bestNahaNet);
 
@@ -1285,9 +1300,12 @@
           nahaDistNetLow: nahaDistNetLow,
           nahaDistNetHigh: nahaDistNetHigh,
           bestNahaNet: bestNahaNet,
+          bestNahaNetLow: bestNahaNetLow,
+          bestNahaNetHigh: bestNahaNetHigh,
           bestNahaName: bestNahaName,
           isYaeWin: isYaeWin,
-          diff: diff
+          diff: diff,
+          fishBreakdowns: fishBreakdowns
         });
       }
 
@@ -1296,10 +1314,10 @@
       if (userBase === "yaeyama") {
         dayCardsData.forEach(function(d) {
           if (!topOption || d.yaeNet > topOption.net) {
-            topOption = { market: "八重山漁協 (地元)", dayInfo: d.dayInfo, net: d.yaeNet, diff: d.diff, isYae: true, lead: d.lead };
+            topOption = { market: "八重山漁協 (地元)", dayInfo: d.dayInfo, net: d.yaeNet, netLow: d.yaeNetLow, netHigh: d.yaeNetHigh, diff: d.diff, isYae: true, lead: d.lead };
           }
           if (d.bestNahaNet > topOption.net) {
-            topOption = { market: `那覇へ送る (${d.bestNahaName})`, dayInfo: d.dayInfo, net: d.bestNahaNet, diff: d.diff, isYae: false, lead: d.lead };
+            topOption = { market: `那覇へ送る (${d.bestNahaName})`, dayInfo: d.dayInfo, net: d.bestNahaNet, netLow: d.bestNahaNetLow, netHigh: d.bestNahaNetHigh, diff: d.diff, isYae: false, lead: d.lead };
           }
         });
 
@@ -1312,6 +1330,9 @@
               <span class="rec-amount">${topOption.net.toLocaleString()} 円</span>
               <span style="font-size:14px; font-weight:800; color:#FEF08A;">(手取り見込)</span>
             </div>
+            <div style="font-size:12px; color:#FEF08A; font-weight:800; margin-top:2px;">
+              手取り予測上下限: ${topOption.netLow.toLocaleString()} 〜 ${topOption.netHigh.toLocaleString()} 円
+            </div>
             <div class="rec-desc">
               ${yaeWins 
                 ? `八重山漁協へ出す方が、那覇へ送るよりも輸送費・資材費を引いた手取りで <strong>+${topOption.diff.toLocaleString()} 円</strong> 有利です。`
@@ -1323,17 +1344,23 @@
       } else {
         // 沖縄本島拠点
         let topDay = dayCardsData[0];
-        let bestMkt = "泊市場";
+        let bestMkt = "泊魚市場(119)";
         let bestNet = 0;
+        let bestNetLow = 0;
+        let bestNetHigh = 0;
         dayCardsData.forEach(function(d) {
           if (d.tomariNet > bestNet) {
             bestNet = d.tomariNet;
-            bestMkt = "泊市場(119)";
+            bestNetLow = d.tomariNetLow;
+            bestNetHigh = d.tomariNetHigh;
+            bestMkt = "泊魚市場(119)";
             topDay = d;
           }
           if (d.nahaDistNet > bestNet) {
             bestNet = d.nahaDistNet;
-            bestMkt = "那覇地区(138)";
+            bestNetLow = d.nahaDistNetLow;
+            bestNetHigh = d.nahaDistNetHigh;
+            bestMkt = "那覇地区漁協(138)";
             topDay = d;
           }
         });
@@ -1344,6 +1371,9 @@
             <div class="rec-amount-row">
               <span class="rec-amount">${bestNet.toLocaleString()} 円</span>
               <span style="font-size:14px; font-weight:800; color:#FEF08A;">(手取り見込)</span>
+            </div>
+            <div style="font-size:12px; color:#FEF08A; font-weight:800; margin-top:2px;">
+              手取り予測上下限: ${bestNetLow.toLocaleString()} 〜 ${bestNetHigh.toLocaleString()} 円
             </div>
           </div>
         `;
@@ -1389,21 +1419,74 @@
               </div>
               <div style="font-size:11px; color:#0D9488; margin-top:2px; display:flex; justify-content:space-between;">
                 <span>輸送費: 0円 / 手数料5%</span>
-                <span>予測幅: ${d.yaeNetLow.toLocaleString()} 〜 ${d.yaeNetHigh.toLocaleString()}円</span>
+                <span>予測上下限: <strong>${d.yaeNetLow.toLocaleString()} 〜 ${d.yaeNetHigh.toLocaleString()}円</strong></span>
               </div>
             </div>
 
             <!-- 那覇に送る場合 -->
-            <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
+            <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:8px; padding:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:14px;">
                 <span style="color:#1E40AF;">✈️ 那覇に送る (${d.bestNahaName})</span>
                 <span style="font-size:16px; color:#1E40AF;">手取り: ${d.bestNahaNet.toLocaleString()} 円</span>
               </div>
               <div style="font-size:11px; color:#3B82F6; margin-top:2px; display:flex; justify-content:space-between;">
-                <span>那覇セリ日: <strong>${d.nahaDayInfo.fullLabel}</strong> / 泊: ${d.tomariNet.toLocaleString()}円, 那覇地区: ${d.nahaDistNet.toLocaleString()}円</span>
-                <span>${isFreightSet ? `送料+資材: ${(totalPacking + totalFreight).toLocaleString()}円引済` : '<strong style=\"color:#DC2626;\">送料未設定</strong>'}</span>
+                <span>那覇セリ日: <strong>${d.nahaDayInfo.fullLabel}</strong></span>
+                <span>予測上下限: <strong>${d.bestNahaNetLow.toLocaleString()} 〜 ${d.bestNahaNetHigh.toLocaleString()}円</strong></span>
+              </div>
+              
+              <!-- 那覇地区(138) と 泊市場(119) の手取り・上下限内訳 -->
+              <div style="margin-top:6px; padding-top:6px; border-top:1px dashed #BFDBFE; font-size:11px; display:flex; flex-direction:column; gap:4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#FFF; padding:4px 6px; border-radius:4px; border:1px solid #DBEAFE;">
+                  <span style="color:#1E40AF; font-weight:800;">・那覇地区漁協 (138)</span>
+                  <div style="text-align:right;">
+                    <span style="font-weight:900; color:#1E40AF;">手取り ${d.nahaDistNet.toLocaleString()} 円</span>
+                    <span style="color:#2563EB; font-size:10px; font-weight:700; margin-left:4px;">[上下限: ${d.nahaDistNetLow.toLocaleString()} 〜 ${d.nahaDistNetHigh.toLocaleString()}円]</span>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#FFF; padding:4px 6px; border-radius:4px; border:1px solid #DBEAFE;">
+                  <span style="color:#0369A1; font-weight:800;">・JF泊魚市場 (119)</span>
+                  <div style="text-align:right;">
+                    <span style="font-weight:900; color:#0369A1;">手取り ${d.tomariNet.toLocaleString()} 円</span>
+                    <span style="color:#0284C7; font-size:10px; font-weight:700; margin-left:4px;">[上下限: ${d.tomariNetLow.toLocaleString()} 〜 ${d.tomariNetHigh.toLocaleString()}円]</span>
+                  </div>
+                </div>
+                <div style="font-size:10px; color:#64748B; text-align:right; margin-top:1px;">
+                  ${isFreightSet ? `※送料+資材計 ${(totalPacking + totalFreight).toLocaleString()}円 差引済` : '<strong style="color:#DC2626;">※送料未設定</strong>'}
+                </div>
               </div>
             </div>
+
+            <!-- 魚種別の単価・上下限アコーディオン -->
+            <details style="margin-top:8px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:6px 10px; font-size:11px;">
+              <summary style="font-weight:800; color:var(--primary); cursor:pointer; outline:none; user-select:none;">
+                🔍 魚種別の予測単価（上下限）を見る
+              </summary>
+              <div style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
+                ${d.fishBreakdowns.map(function(fb) {
+                  return `
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:6px;">
+                      <div style="font-weight:800; color:var(--text); font-size:12px; margin-bottom:4px;">
+                        🐟 ${fb.fish} (${fb.kg} kg)
+                      </div>
+                      <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
+                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
+                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:700; color:#0F766E;">八重山(134):</span>
+                          <span>最有力 <strong>${fb.yae.mode.toLocaleString()}</strong> 円/kg <span style="color:#0F766E; font-weight:700;">(上下限: ${fb.yae.low.toLocaleString()} 〜 ${fb.yae.high.toLocaleString()}円)</span></span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </details>
           `;
         } else {
           // 本島拠点比較カード
@@ -1415,16 +1498,55 @@
                 ${weatherBadge}
               </div>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
-                <div style="font-size:12px; font-weight:800; color:#1E40AF;">泊魚市場 (119)</div>
-                <div style="font-size:16px; font-weight:900; color:#1E40AF;">${d.tomariNet.toLocaleString()} 円</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <!-- 那覇地区漁協 (138) -->
+              <div style="background:${d.nahaDistNet >= d.tomariNet ? '#EFF6FF' : '#F8FAFC'}; border:1.5px solid ${d.nahaDistNet >= d.tomariNet ? '#3B82F6' : '#CBD5E1'}; border-radius:8px; padding:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; font-weight:800; color:#1E40AF;">那覇地区漁協 (138)</span>
+                  ${d.nahaDistNet >= d.tomariNet ? '<span style="background:#2563EB; color:#FFF; font-size:10px; font-weight:900; padding:1px 5px; border-radius:4px;">高値</span>' : ''}
+                </div>
+                <div style="font-size:16px; font-weight:900; color:#1E40AF; margin:2px 0;">手取り: ${d.nahaDistNet.toLocaleString()} 円</div>
+                <div style="font-size:11px; font-weight:700; color:#3B82F6;">予測上下限:<br>${d.nahaDistNetLow.toLocaleString()} 〜 ${d.nahaDistNetHigh.toLocaleString()} 円</div>
               </div>
-              <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:8px;">
-                <div style="font-size:12px; font-weight:800; color:#1E40AF;">那覇地区漁協 (138)</div>
-                <div style="font-size:16px; font-weight:900; color:#1E40AF;">${d.nahaDistNet.toLocaleString()} 円</div>
+
+              <!-- 泊魚市場 (119) -->
+              <div style="background:${d.tomariNet >= d.nahaDistNet ? '#EFF6FF' : '#F8FAFC'}; border:1.5px solid ${d.tomariNet >= d.nahaDistNet ? '#3B82F6' : '#CBD5E1'}; border-radius:8px; padding:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; font-weight:800; color:#1E40AF;">泊魚市場 (119)</span>
+                  ${d.tomariNet >= d.nahaDistNet ? '<span style="background:#2563EB; color:#FFF; font-size:10px; font-weight:900; padding:1px 5px; border-radius:4px;">高値</span>' : ''}
+                </div>
+                <div style="font-size:16px; font-weight:900; color:#1E40AF; margin:2px 0;">手取り: ${d.tomariNet.toLocaleString()} 円</div>
+                <div style="font-size:11px; font-weight:700; color:#3B82F6;">予測上下限:<br>${d.tomariNetLow.toLocaleString()} 〜 ${d.tomariNetHigh.toLocaleString()} 円</div>
               </div>
             </div>
+
+            <!-- 魚種別の単価・上下限アコーディオン -->
+            <details style="margin-top:8px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:6px 10px; font-size:11px;">
+              <summary style="font-weight:800; color:var(--primary); cursor:pointer; outline:none; user-select:none;">
+                🔍 魚種別の予測単価（上下限）を見る
+              </summary>
+              <div style="margin-top:6px; display:flex; flex-direction:column; gap:6px;">
+                ${d.fishBreakdowns.map(function(fb) {
+                  return `
+                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:6px;">
+                      <div style="font-weight:800; color:var(--text); font-size:12px; margin-bottom:4px;">
+                        🐟 ${fb.fish} (${fb.kg} kg)
+                      </div>
+                      <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:11px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:700; color:#1E40AF;">那覇地区(138):</span>
+                          <span>最有力 <strong>${fb.nahaDist.mode.toLocaleString()}</strong> 円/kg <span style="color:#2563EB; font-weight:700;">(上下限: ${fb.nahaDist.low.toLocaleString()} 〜 ${fb.nahaDist.high.toLocaleString()}円)</span></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:700; color:#0369A1;">泊市場(119):</span>
+                          <span>最有力 <strong>${fb.tomari.mode.toLocaleString()}</strong> 円/kg <span style="color:#0284C7; font-weight:700;">(上下限: ${fb.tomari.low.toLocaleString()} 〜 ${fb.tomari.high.toLocaleString()}円)</span></span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </details>
           `;
         }
 
