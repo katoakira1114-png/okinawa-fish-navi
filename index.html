@@ -647,6 +647,23 @@
          タブ 2: 手取り判定（結果）
          ============================== -->
     <div id="tab-results" class="tab-content" style="display:none;">
+      <!-- 未設定時ガイダンスバナー -->
+      <div id="freightNoticeBanner" style="display:none; background:#FFFBEB; border:1.5px solid #F59E0B; border-radius:12px; padding:12px 14px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <div>
+            <div style="font-weight:900; color:#92400E; font-size:13px; display:flex; align-items:center; gap:4px;">
+              <span>⚠️ 那覇への送料・梱包費が未設定です</span>
+            </div>
+            <div style="font-size:11px; color:#B45309; margin-top:3px; line-height:1.4;">
+              現在、那覇向けは<strong>輸送費を引かない金額</strong>で試算されています。正確な手取り比較を行うには設定を行ってください。
+            </div>
+          </div>
+          <button type="button" onclick="switchTab('settings')" style="background:#D97706; color:#FFF; border:none; border-radius:8px; padding:8px 12px; font-weight:900; font-size:12px; white-space:nowrap; cursor:pointer;">
+            ⚙️ 設定へ
+          </button>
+        </div>
+      </div>
+
       <!-- 最優先推奨バナー -->
       <div id="recommendationBanner"></div>
 
@@ -656,57 +673,6 @@
           <span style="font-size:11px; color:var(--subtext); font-weight:700;">送料・梱包費差引済</span>
         </div>
         <div id="dayCardsContainer"></div>
-      </div>
-
-      <!-- 的中率サマリーカード（再現検証結果・リード別表示） -->
-      <div class="acc-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <strong style="font-size:13px; color:var(--primary);">🎯 予測精度・的中率の検証結果</strong>
-          <span style="font-size:10px; background:#E2E8F0; color:#475569; padding:2px 6px; border-radius:4px; font-weight:800;">再現による検証結果</span>
-        </div>
-        <p style="font-size:11px; color:var(--subtext); margin-bottom:8px; line-height:1.3;">
-          ※本日より本物の日次スナップショット保存を開始しました。4週間分蓄積完了後に本物データによる実績的中率へ移行します。
-        </p>
-
-        <!-- リード別精度テーブル -->
-        <div style="background:#FFF; border:1px solid #E2E8F0; border-radius:8px; overflow:hidden; font-size:11px;">
-          <table style="width:100%; border-collapse:collapse; text-align:center;">
-            <thead>
-              <tr style="background:#F1F5F9; color:var(--primary); font-weight:800; border-bottom:1px solid #E2E8F0;">
-                <th style="padding:6px 4px;">何日先</th>
-                <th style="padding:6px 4px;">🦞 イセエビ類</th>
-                <th style="padding:6px 4px;">🐠 高級地物</th>
-                <th style="padding:6px 4px;">判定・備考</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid #F1F5F9;">
-                <td style="padding:6px 4px; font-weight:800;">1日先</td>
-                <td style="padding:6px 4px;">誤差 ±24.7%<br><span style="color:#16A34A; font-size:10px;">(区間81.2%)</span></td>
-                <td style="padding:6px 4px;">誤差 ±14.8%<br><span style="color:#16A34A; font-size:10px;">(区間83.5%)</span></td>
-                <td style="padding:6px 4px; color:#16A34A; font-weight:800;">◎ 実用推奨</td>
-              </tr>
-              <tr style="border-bottom:1px solid #F1F5F9;">
-                <td style="padding:6px 4px; font-weight:800;">3日先</td>
-                <td style="padding:6px 4px;">誤差 ±42.2%<br><span style="color:#16A34A; font-size:10px;">(区間81.0%)</span></td>
-                <td style="padding:6px 4px;">誤差 ±19.5%<br><span style="color:#16A34A; font-size:10px;">(区間80.2%)</span></td>
-                <td style="padding:6px 4px; color:#0284C7; font-weight:800;">◯ 目安水準</td>
-              </tr>
-              <tr style="border-bottom:1px solid #F1F5F9;">
-                <td style="padding:6px 4px; font-weight:800;">7日先</td>
-                <td style="padding:6px 4px;">誤差 ±40.5%<br><span style="color:#16A34A; font-size:10px;">(区間82.0%)</span></td>
-                <td style="padding:6px 4px;">誤差 ±22.0%<br><span style="color:#D97706; font-size:10px;">(区間76.8%)</span></td>
-                <td style="padding:6px 4px; color:#D97706; font-weight:800;">△ 参考程度</td>
-              </tr>
-              <tr>
-                <td style="padding:6px 4px; font-weight:800;">14日先</td>
-                <td style="padding:6px 4px;">誤差 ±41.0%<br><span style="color:#16A34A; font-size:10px;">(区間80.5%)</span></td>
-                <td style="padding:6px 4px; color:#94A3B8;">-</td>
-                <td style="padding:6px 4px; color:#D97706; font-weight:800;">△ 生け参考</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
 
@@ -764,19 +730,20 @@
 
           <div class="input-group">
             <label>📦 梱包資材費（発泡スチロール・氷など / 円/箱）</label>
-            <input type="number" id="cfgPackingCost" class="input-field" value="500">
+            <input type="number" id="cfgPackingCost" class="input-field" value="" placeholder="未設定（例: 500）">
           </div>
           <div class="input-group">
             <label>✈️ 那覇向け送料（航空便または船便運賃 / 円/箱）</label>
-            <input type="number" id="cfgShippingCost" class="input-field" value="2000">
+            <input type="number" id="cfgShippingCost" class="input-field" value="" placeholder="未設定（例: 2000）">
           </div>
           <div class="input-group">
             <label>⚖️ 1箱あたりの推奨収容量 (kg/箱)</label>
-            <input type="number" id="cfgBoxCapacity" class="input-field" value="10">
+            <input type="number" id="cfgBoxCapacity" class="input-field" value="10" placeholder="10">
           </div>
           <div class="input-group">
             <label>⏱️ 那覇への輸送日数（日）</label>
             <select id="cfgTransportDays" class="input-field">
+              <option value="" selected>未設定（選択してください）</option>
               <option value="1">1日（航空便: 今日発送 → 翌朝セリ）</option>
               <option value="2">2日（船便等: 今日発送 → 翌々朝セリ）</option>
             </select>
@@ -844,11 +811,12 @@
     let userFishRows = [];
 
     // ユーザー輸送・経費設定 (localStorage)
+    // 指示に基づき梱包費、送料、輸送日数は初期状態では未設定（null/空欄）とする
     let userSettings = {
-      packingCost: 500,
-      shippingCost: 2000,
+      packingCost: null,
+      shippingCost: null,
       boxCapacity: 10,
-      transportDays: 1,
+      transportDays: null,
       feeYaePct: 5.0,
       feeNahaDistPct: 5.0,
       feeTomariPct: 5.5
@@ -877,10 +845,10 @@
         if (b) userBase = b;
       } catch(e) {}
 
-      document.getElementById("cfgPackingCost").value = userSettings.packingCost;
-      document.getElementById("cfgShippingCost").value = userSettings.shippingCost;
-      document.getElementById("cfgBoxCapacity").value = userSettings.boxCapacity;
-      document.getElementById("cfgTransportDays").value = userSettings.transportDays;
+      document.getElementById("cfgPackingCost").value = (userSettings.packingCost !== null && userSettings.packingCost !== undefined) ? userSettings.packingCost : "";
+      document.getElementById("cfgShippingCost").value = (userSettings.shippingCost !== null && userSettings.shippingCost !== undefined) ? userSettings.shippingCost : "";
+      document.getElementById("cfgBoxCapacity").value = (userSettings.boxCapacity !== null && userSettings.boxCapacity !== undefined) ? userSettings.boxCapacity : 10;
+      document.getElementById("cfgTransportDays").value = (userSettings.transportDays !== null && userSettings.transportDays !== undefined) ? userSettings.transportDays : "";
       if (document.getElementById("cfgFeeYae")) {
         document.getElementById("cfgFeeYae").value = (userSettings.feeYaePct !== undefined) ? userSettings.feeYaePct : 5.0;
         document.getElementById("cfgFeeNahaDist").value = (userSettings.feeNahaDistPct !== undefined) ? userSettings.feeNahaDistPct : 5.0;
@@ -890,10 +858,17 @@
     }
 
     function saveUserSettings() {
-      userSettings.packingCost = parseFloat(document.getElementById("cfgPackingCost").value) || 0;
-      userSettings.shippingCost = parseFloat(document.getElementById("cfgShippingCost").value) || 0;
-      userSettings.boxCapacity = parseFloat(document.getElementById("cfgBoxCapacity").value) || 10;
-      userSettings.transportDays = parseInt(document.getElementById("cfgTransportDays").value, 10) || 1;
+      const pCost = document.getElementById("cfgPackingCost").value.trim();
+      userSettings.packingCost = pCost === "" ? null : (parseFloat(pCost) || 0);
+
+      const sCost = document.getElementById("cfgShippingCost").value.trim();
+      userSettings.shippingCost = sCost === "" ? null : (parseFloat(sCost) || 0);
+
+      const bCap = document.getElementById("cfgBoxCapacity").value.trim();
+      userSettings.boxCapacity = bCap === "" ? 10 : (parseFloat(bCap) || 10);
+
+      const tDays = document.getElementById("cfgTransportDays").value;
+      userSettings.transportDays = tDays === "" ? null : (parseInt(tDays, 10) || 1);
       
       const fYae = parseFloat(document.getElementById("cfgFeeYae").value);
       userSettings.feeYaePct = (!isNaN(fYae) && fYae >= 0) ? fYae : 5.0;
@@ -912,23 +887,23 @@
 
     function resetDefaultSettings() {
       userSettings = {
-        packingCost: 500,
-        shippingCost: 2000,
+        packingCost: null,
+        shippingCost: null,
         boxCapacity: 10,
-        transportDays: 1,
+        transportDays: null,
         feeYaePct: 5.0,
         feeNahaDistPct: 5.0,
         feeTomariPct: 5.5
       };
-      document.getElementById("cfgPackingCost").value = 500;
-      document.getElementById("cfgShippingCost").value = 2000;
+      document.getElementById("cfgPackingCost").value = "";
+      document.getElementById("cfgShippingCost").value = "";
       document.getElementById("cfgBoxCapacity").value = 10;
-      document.getElementById("cfgTransportDays").value = 1;
+      document.getElementById("cfgTransportDays").value = "";
       document.getElementById("cfgFeeYae").value = 5.0;
       document.getElementById("cfgFeeNahaDist").value = 5.0;
       document.getElementById("cfgFeeTomari").value = 5.5;
       saveUserSettings();
-      showToast("初期設定にリセットしました");
+      showToast("初期状態（未設定）に戻しました");
     }
 
     function fetchPredictionData() {
@@ -954,23 +929,6 @@
       if (data.status && data.status.updateTimeDetail) {
         document.getElementById("headerLastUpdate").textContent = "最終更新: " + data.status.updateTimeDetail;
         checkOutdated(data.status.updateTimeDetail);
-      }
-
-      // 的中率サマリーの反映
-      if (data.accuracySummary && data.accuracySummary.categorySummary) {
-        const cs = data.accuracySummary.categorySummary;
-        if (cs.lobster) {
-          document.getElementById("accLobsterVal").textContent = cs.lobster.coveragePct + "%";
-          document.getElementById("accLobsterMape").textContent = "誤差 ±" + cs.lobster.mapePct + "%";
-        }
-        if (cs.reef) {
-          document.getElementById("accReefVal").textContent = cs.reef.coveragePct + "%";
-          document.getElementById("accReefMape").textContent = "誤差 ±" + cs.reef.mapePct + "%";
-        }
-        if (cs.pelagic) {
-          document.getElementById("accPelagicVal").textContent = cs.pelagic.coveragePct + "%";
-          document.getElementById("accPelagicMape").textContent = "誤差 ±" + cs.pelagic.mapePct + "%";
-        }
       }
 
       // 指示に基づき「空の状態の1行だけ」にする（勝手な値や追加を禁止）
@@ -1190,11 +1148,26 @@
       closeFishModal();
     }
 
-    // --- 日付フォーマットヘルパー (例: 2日後（10/23 木）) ---
+    // --- 日本時間（Asia/Tokyo）の今日の日付を取得 ---
+    function getTodayJST() {
+      const now = new Date();
+      const jstStr = new Intl.DateTimeFormat("ja-JP", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(now); // 例: "2026/10/21"
+      const parts = jstStr.split(/[\/-]/);
+      return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+
+    // --- 日付フォーマットヘルパー (今日・明日・2日後などの表示と対象日の完全同期) ---
     function formatDayWithDate(dateStr, lead) {
+      const todayJST = getTodayJST();
       let dateObj = null;
+
       if (dateStr && typeof dateStr === "string") {
-        const clean = dateStr.trim().split(" ")[0];
+        const clean = dateStr.trim().split(" ")[0].split("T")[0];
         const parts = clean.split(/[-/]/);
         if (parts.length === 3) {
           const y = parseInt(parts[0], 10);
@@ -1205,10 +1178,14 @@
           }
         }
       }
+
       if (!dateObj || isNaN(dateObj.getTime())) {
-        dateObj = new Date();
-        dateObj.setDate(dateObj.getDate() + lead);
+        dateObj = new Date(todayJST.getTime() + (lead || 0) * 86400000);
       }
+
+      // 日本時間基準での日数差 (0:今日, 1:明日, 2:2日後, ...)
+      const diffTime = dateObj.getTime() - todayJST.getTime();
+      const diffDays = Math.round(diffTime / 86400000);
 
       const m = dateObj.getMonth() + 1;
       const d = dateObj.getDate();
@@ -1216,12 +1193,15 @@
       const dow = dowChars[dateObj.getDay()];
 
       let rel = "";
-      if (lead === 1) rel = "明日";
-      else if (lead === 2) rel = "2日後";
-      else rel = lead + "日後";
+      if (diffDays === 0) rel = "今日";
+      else if (diffDays === 1) rel = "明日";
+      else if (diffDays === 2) rel = "2日後";
+      else if (diffDays > 2) rel = diffDays + "日後";
+      else rel = Math.abs(diffDays) + "日前";
 
       return {
         rel: rel,
+        diffDays: diffDays,
         dateFormatted: `${m}/${d} ${dow}`,
         fullLabel: `${rel}（${m}/${d} ${dow}）`
       };
@@ -1233,11 +1213,14 @@
 
       const bannerContainer = document.getElementById("recommendationBanner");
       const dayCardsContainer = document.getElementById("dayCardsContainer");
+      const bannerNoticeEl = document.getElementById("freightNoticeBanner");
+
       bannerContainer.innerHTML = "";
       dayCardsContainer.innerHTML = "";
 
       const activeRows = userFishRows.filter(function(r) { return Boolean(r.fish); });
       if (activeRows.length === 0) {
+        if (bannerNoticeEl) bannerNoticeEl.style.display = "none";
         bannerContainer.innerHTML = `
           <div style="background:#FFF; border:1.5px dashed var(--border); border-radius:12px; padding:20px; text-align:center; color:var(--subtext);">
             <div style="font-size:24px; margin-bottom:6px;">🎣</div>
@@ -1266,9 +1249,16 @@
       // 梱包箱数の計算
       const boxCap = userSettings.boxCapacity || 10;
       const boxCount = Math.max(1, Math.ceil(totalShipKg / boxCap));
-      const totalPacking = boxCount * (userSettings.packingCost || 0);
-      const totalFreight = boxCount * (userSettings.shippingCost || 0);
-      const isFreightSet = (userSettings.shippingCost > 0);
+      const hasPackingCost = (userSettings.packingCost !== null && userSettings.packingCost !== undefined && !isNaN(userSettings.packingCost) && userSettings.packingCost > 0);
+      const hasShippingCost = (userSettings.shippingCost !== null && userSettings.shippingCost !== undefined && !isNaN(userSettings.shippingCost) && userSettings.shippingCost > 0);
+      const isFreightSet = hasShippingCost;
+      const totalPacking = hasPackingCost ? (boxCount * userSettings.packingCost) : 0;
+      const totalFreight = hasShippingCost ? (boxCount * userSettings.shippingCost) : 0;
+
+      // 未設定ガイダンスバナーの表示制御（八重山拠点かつ送料未設定時）
+      if (bannerNoticeEl) {
+        bannerNoticeEl.style.display = (!isFreightSet && userBase === "yaeyama") ? "block" : "none";
+      }
 
       // 手数料設定（ユーザー設定値を最優先。未指定時はアプリ初期値）
       const feeYae = (userSettings.feeYaePct !== undefined && !isNaN(userSettings.feeYaePct)) 
@@ -1409,9 +1399,10 @@
             </div>
             <div class="rec-desc">
               ${yaeWins 
-                ? `八重山漁協へ出す方が、那覇へ送るよりも輸送費・資材費を引いた手取りで <strong>+${topOption.diff.toLocaleString()} 円</strong> 有利です。`
-                : `那覇へ送る方が、送料・梱包費（計${totalFreight.toLocaleString()}円）を差し引いても八重山より <strong>+${topOption.diff.toLocaleString()} 円</strong> 高値手取りになります。`}
-              ${!isFreightSet ? '<br><span style="color:#FEF08A; font-weight:900;">⚠️ 那覇送料が未設定です（設定画面で登録可能）</span>' : ''}
+                ? `八重山漁協へ出す方が、那覇へ送るよりも手取りで <strong>+${topOption.diff.toLocaleString()} 円</strong> 有利です。`
+                : (isFreightSet 
+                    ? `那覇へ送る方が、送料・梱包費（計${(totalPacking + totalFreight).toLocaleString()}円）を差し引いても八重山より <strong>+${topOption.diff.toLocaleString()} 円</strong> 高値手取りになります。`
+                    : `那覇へ送る方が、八重山より <strong>+${topOption.diff.toLocaleString()} 円</strong> 高値見込です。<br><strong style="color:#FEF08A;">⚠️ 注意: 送料未設定のため輸送費を引いていません。「3. 経費・設定」で登録すると正確な手取りを計算できます。</strong>`)}
             </div>
           </div>
         `;
@@ -1500,7 +1491,7 @@
             <!-- 那覇に送る場合 -->
             <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:8px; padding:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; font-size:14px;">
-                <span style="color:#1E40AF;">✈️ 那覇に送る (${d.bestNahaName})</span>
+                <span style="color:#1E40AF;">✈️ 那覇に送る (${d.bestNahaName}) ${!isFreightSet ? '<span style="background:#FEF3C7; color:#92400E; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:4px;">⚠️ 送料未設定</span>' : ''}</span>
                 <span style="font-size:16px; color:#1E40AF;">手取り: ${d.bestNahaNet.toLocaleString()} 円</span>
               </div>
               <div style="font-size:11px; color:#3B82F6; margin-top:2px; display:flex; justify-content:space-between;">
@@ -1524,8 +1515,8 @@
                     <span style="color:#0284C7; font-size:10px; font-weight:700; margin-left:4px;">[上下限: ${d.tomariNetLow.toLocaleString()} 〜 ${d.tomariNetHigh.toLocaleString()}円]</span>
                   </div>
                 </div>
-                <div style="font-size:10px; color:#64748B; text-align:right; margin-top:1px;">
-                  ${isFreightSet ? `※送料+資材計 ${(totalPacking + totalFreight).toLocaleString()}円 差引済` : '<strong style="color:#DC2626;">※送料未設定</strong>'}
+                <div style="font-size:10px; color:#64748B; text-align:right; margin-top:2px;">
+                  ${isFreightSet ? `※送料+資材計 ${(totalPacking + totalFreight).toLocaleString()}円 差引済` : '<strong style="color:#DC2626; background:#FEE2E2; padding:2px 6px; border-radius:4px;">※送料未設定：輸送費を引かない金額です（販売手数料のみ控除）</strong>'}
                 </div>
               </div>
             </div>
