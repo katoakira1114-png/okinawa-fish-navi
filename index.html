@@ -713,16 +713,55 @@
     <!-- ==============================
          タブ 3: 輸送設定
          ============================== -->
+    <!-- ==============================
+         タブ 3: 販売手数料・輸送経費設定
+         ============================== -->
     <div id="tab-settings" class="tab-content" style="display:none;">
       <div class="card">
         <div class="card-title">
-          <span>⚙️ 八重山 ⇄ 那覇 輸送・経費設定</span>
+          <span>⚙️ 販売手数料・輸送経費の設定</span>
         </div>
         <p style="font-size:12px; color:var(--subtext); margin-bottom:12px;">
           設定した値はあなたのスマホのブラウザ内に安全に保存され、手取り計算に自動反映されます。
         </p>
 
         <div style="display:flex; flex-direction:column; gap:12px;">
+          <!-- 販売手数料セクション -->
+          <div style="background:#F8FAFC; border:1.5px solid var(--border); border-radius:10px; padding:12px;">
+            <div style="font-size:13px; font-weight:800; color:var(--primary); margin-bottom:4px;">
+              🏷️ 市場販売手数料（売値に対する控除率 %）
+            </div>
+            <p style="font-size:11px; color:var(--subtext); margin-bottom:8px;">
+              各市場のセリ販売手数料（委託手数料等）を差し引いて手取りを計算します。
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+              <div class="input-group">
+                <label style="font-size:10px;">八重山(134)</label>
+                <div style="display:flex; align-items:center; background:#FFF; border:1.5px solid var(--border); border-radius:8px; padding-right:6px;">
+                  <input type="number" id="cfgFeeYae" class="input-field" step="0.1" min="0" max="30" value="5.0" style="border:none; padding:8px 4px; text-align:right;">
+                  <span style="font-size:12px; font-weight:800; color:var(--subtext);">%</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label style="font-size:10px;">那覇地区(138)</label>
+                <div style="display:flex; align-items:center; background:#FFF; border:1.5px solid var(--border); border-radius:8px; padding-right:6px;">
+                  <input type="number" id="cfgFeeNahaDist" class="input-field" step="0.1" min="0" max="30" value="5.0" style="border:none; padding:8px 4px; text-align:right;">
+                  <span style="font-size:12px; font-weight:800; color:var(--subtext);">%</span>
+                </div>
+              </div>
+              <div class="input-group">
+                <label style="font-size:10px;">泊市場(119)</label>
+                <div style="display:flex; align-items:center; background:#FFF; border:1.5px solid var(--border); border-radius:8px; padding-right:6px;">
+                  <input type="number" id="cfgFeeTomari" class="input-field" step="0.1" min="0" max="30" value="5.5" style="border:none; padding:8px 4px; text-align:right;">
+                  <span style="font-size:12px; font-weight:800; color:var(--subtext);">%</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:10px; color:#64748B; margin-top:6px;">
+              ※標準初期値: 八重山 5.0%, 那覇地区 5.0%, 泊 5.5%
+            </div>
+          </div>
+
           <div class="input-group">
             <label>📦 梱包資材費（発泡スチロール・氷など / 円/箱）</label>
             <input type="number" id="cfgPackingCost" class="input-field" value="500">
@@ -768,7 +807,7 @@
     </button>
     <button type="button" class="nav-btn" data-tab="settings" onclick="switchTab('settings')">
       <span class="nav-icon">⚙️</span>
-      <span>3. 輸送設定</span>
+      <span>3. 経費・設定</span>
     </button>
   </nav>
 
@@ -804,12 +843,15 @@
     let activeFishRowIdx = null;
     let userFishRows = [];
 
-    // ユーザー輸送設定 (localStorage)
+    // ユーザー輸送・経費設定 (localStorage)
     let userSettings = {
       packingCost: 500,
       shippingCost: 2000,
       boxCapacity: 10,
-      transportDays: 1
+      transportDays: 1,
+      feeYaePct: 5.0,
+      feeNahaDistPct: 5.0,
+      feeTomariPct: 5.5
     };
 
     // --- 初期化 ---
@@ -839,6 +881,11 @@
       document.getElementById("cfgShippingCost").value = userSettings.shippingCost;
       document.getElementById("cfgBoxCapacity").value = userSettings.boxCapacity;
       document.getElementById("cfgTransportDays").value = userSettings.transportDays;
+      if (document.getElementById("cfgFeeYae")) {
+        document.getElementById("cfgFeeYae").value = (userSettings.feeYaePct !== undefined) ? userSettings.feeYaePct : 5.0;
+        document.getElementById("cfgFeeNahaDist").value = (userSettings.feeNahaDistPct !== undefined) ? userSettings.feeNahaDistPct : 5.0;
+        document.getElementById("cfgFeeTomari").value = (userSettings.feeTomariPct !== undefined) ? userSettings.feeTomariPct : 5.5;
+      }
       updateBaseUi();
     }
 
@@ -847,6 +894,13 @@
       userSettings.shippingCost = parseFloat(document.getElementById("cfgShippingCost").value) || 0;
       userSettings.boxCapacity = parseFloat(document.getElementById("cfgBoxCapacity").value) || 10;
       userSettings.transportDays = parseInt(document.getElementById("cfgTransportDays").value, 10) || 1;
+      
+      const fYae = parseFloat(document.getElementById("cfgFeeYae").value);
+      userSettings.feeYaePct = (!isNaN(fYae) && fYae >= 0) ? fYae : 5.0;
+      const fNaha = parseFloat(document.getElementById("cfgFeeNahaDist").value);
+      userSettings.feeNahaDistPct = (!isNaN(fNaha) && fNaha >= 0) ? fNaha : 5.0;
+      const fTomari = parseFloat(document.getElementById("cfgFeeTomari").value);
+      userSettings.feeTomariPct = (!isNaN(fTomari) && fTomari >= 0) ? fTomari : 5.5;
 
       try {
         localStorage.setItem("okinawa_fish_user_settings", JSON.stringify(userSettings));
@@ -857,11 +911,22 @@
     }
 
     function resetDefaultSettings() {
-      userSettings = { packingCost: 500, shippingCost: 2000, boxCapacity: 10, transportDays: 1 };
+      userSettings = {
+        packingCost: 500,
+        shippingCost: 2000,
+        boxCapacity: 10,
+        transportDays: 1,
+        feeYaePct: 5.0,
+        feeNahaDistPct: 5.0,
+        feeTomariPct: 5.5
+      };
       document.getElementById("cfgPackingCost").value = 500;
       document.getElementById("cfgShippingCost").value = 2000;
       document.getElementById("cfgBoxCapacity").value = 10;
       document.getElementById("cfgTransportDays").value = 1;
+      document.getElementById("cfgFeeYae").value = 5.0;
+      document.getElementById("cfgFeeNahaDist").value = 5.0;
+      document.getElementById("cfgFeeTomari").value = 5.5;
       saveUserSettings();
       showToast("初期設定にリセットしました");
     }
@@ -1205,10 +1270,16 @@
       const totalFreight = boxCount * (userSettings.shippingCost || 0);
       const isFreightSet = (userSettings.shippingCost > 0);
 
-      // 手数料設定
-      const feeYae = (appData.cfg && appData.cfg.fee134) ? appData.cfg.fee134 : 0.050;
-      const feeTomari = (appData.cfg && appData.cfg.fee119) ? appData.cfg.fee119 : 0.055;
-      const feeNahaDist = (appData.cfg && appData.cfg.fee138) ? appData.cfg.fee138 : 0.050;
+      // 手数料設定（ユーザー設定値を最優先。未指定時はアプリ初期値）
+      const feeYae = (userSettings.feeYaePct !== undefined && !isNaN(userSettings.feeYaePct)) 
+        ? userSettings.feeYaePct / 100.0 
+        : ((appData.cfg && appData.cfg.fee134) ? appData.cfg.fee134 : 0.050);
+      const feeTomari = (userSettings.feeTomariPct !== undefined && !isNaN(userSettings.feeTomariPct)) 
+        ? userSettings.feeTomariPct / 100.0 
+        : ((appData.cfg && appData.cfg.fee119) ? appData.cfg.fee119 : 0.055);
+      const feeNahaDist = (userSettings.feeNahaDistPct !== undefined && !isNaN(userSettings.feeNahaDistPct)) 
+        ? userSettings.feeNahaDistPct / 100.0 
+        : ((appData.cfg && appData.cfg.fee138) ? appData.cfg.fee138 : 0.050);
 
       // 日別手取り計算 (リード 1 〜 currentHorizon)
       const dayCardsData = [];
@@ -1286,6 +1357,9 @@
 
         dayCardsData.push({
           lead: lead,
+          feeYae: feeYae,
+          feeTomari: feeTomari,
+          feeNahaDist: feeNahaDist,
           dayInfo: dayInfo,
           nahaDayInfo: nahaDayInfo,
           isNoWeather: isNoWeather,
@@ -1418,7 +1492,7 @@
                 <span style="font-size:16px; color:#0F766E;">手取り: ${d.yaeNet.toLocaleString()} 円</span>
               </div>
               <div style="font-size:11px; color:#0D9488; margin-top:2px; display:flex; justify-content:space-between;">
-                <span>輸送費: 0円 / 手数料5%</span>
+                <span>輸送費: 0円 / 手数料 ${(d.feeYae * 100).toFixed(1)}%</span>
                 <span>予測上下限: <strong>${d.yaeNetLow.toLocaleString()} 〜 ${d.yaeNetHigh.toLocaleString()}円</strong></span>
               </div>
             </div>
@@ -1437,14 +1511,14 @@
               <!-- 那覇地区(138) と 泊市場(119) の手取り・上下限内訳 -->
               <div style="margin-top:6px; padding-top:6px; border-top:1px dashed #BFDBFE; font-size:11px; display:flex; flex-direction:column; gap:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; background:#FFF; padding:4px 6px; border-radius:4px; border:1px solid #DBEAFE;">
-                  <span style="color:#1E40AF; font-weight:800;">・那覇地区漁協 (138)</span>
+                  <span style="color:#1E40AF; font-weight:800;">・那覇地区漁協 (138) [手数料 ${(d.feeNahaDist * 100).toFixed(1)}%]</span>
                   <div style="text-align:right;">
                     <span style="font-weight:900; color:#1E40AF;">手取り ${d.nahaDistNet.toLocaleString()} 円</span>
                     <span style="color:#2563EB; font-size:10px; font-weight:700; margin-left:4px;">[上下限: ${d.nahaDistNetLow.toLocaleString()} 〜 ${d.nahaDistNetHigh.toLocaleString()}円]</span>
                   </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; background:#FFF; padding:4px 6px; border-radius:4px; border:1px solid #DBEAFE;">
-                  <span style="color:#0369A1; font-weight:800;">・JF泊魚市場 (119)</span>
+                  <span style="color:#0369A1; font-weight:800;">・JF泊魚市場 (119) [手数料 ${(d.feeTomari * 100).toFixed(1)}%]</span>
                   <div style="text-align:right;">
                     <span style="font-weight:900; color:#0369A1;">手取り ${d.tomariNet.toLocaleString()} 円</span>
                     <span style="color:#0284C7; font-size:10px; font-weight:700; margin-left:4px;">[上下限: ${d.tomariNetLow.toLocaleString()} 〜 ${d.tomariNetHigh.toLocaleString()}円]</span>
@@ -1507,6 +1581,7 @@
                 </div>
                 <div style="font-size:16px; font-weight:900; color:#1E40AF; margin:2px 0;">手取り: ${d.nahaDistNet.toLocaleString()} 円</div>
                 <div style="font-size:11px; font-weight:700; color:#3B82F6;">予測上下限:<br>${d.nahaDistNetLow.toLocaleString()} 〜 ${d.nahaDistNetHigh.toLocaleString()} 円</div>
+                <div style="font-size:10px; color:#64748B; margin-top:2px;">手数料: ${(d.feeNahaDist * 100).toFixed(1)}% 差引済</div>
               </div>
 
               <!-- 泊魚市場 (119) -->
@@ -1517,6 +1592,7 @@
                 </div>
                 <div style="font-size:16px; font-weight:900; color:#1E40AF; margin:2px 0;">手取り: ${d.tomariNet.toLocaleString()} 円</div>
                 <div style="font-size:11px; font-weight:700; color:#3B82F6;">予測上下限:<br>${d.tomariNetLow.toLocaleString()} 〜 ${d.tomariNetHigh.toLocaleString()} 円</div>
+                <div style="font-size:10px; color:#64748B; margin-top:2px;">手数料: ${(d.feeTomari * 100).toFixed(1)}% 差引済</div>
               </div>
             </div>
 
