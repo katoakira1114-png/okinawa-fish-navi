@@ -1,9 +1,9 @@
 {
  "status": {
   "updateStatus": "正常完了",
-  "updateTimeDetail": "2026-10-26 07:15",
+  "updateTimeDetail": "2026-10-26 09:36",
   "activeModel": "自動",
-  "serverTime": "2026-10-26T07:15:29.853463"
+  "serverTime": "2026-10-26T09:36:55.271152"
  },
  "leadDates": {
   "1": "2026-10-27",
@@ -66711,31 +66711,31 @@
   ]
  },
  "accuracySummary": {
-  "periodLabel": "答え合わせループ実測 (起点 2026-08-12〜2026-10-20, 当時の天気予報のみで予測)",
+  "periodLabel": "答え合わせループ実測 (起点 2026-08-17〜2026-10-25, 当時の天気予報のみで予測)",
   "isReconstructed": false,
   "note": "v3モデル(LightGBM)。mapePct=誤差の中央値%、confMapePct=取引5千円以上のロットの平均誤差%、coveragePct=実績が80%区間に入った割合。",
   "byLead": {
    "1": {
     "lobster": {
-     "coveragePct": 77.6,
-     "mapePct": 18.0,
-     "confMapePct": 22.8,
-     "maeYen": 1325,
-     "n": 379,
+     "coveragePct": 75.4,
+     "mapePct": 18.1,
+     "confMapePct": 23.3,
+     "maeYen": 1368,
+     "n": 345,
      "label": "🦞 イセエビ類 (1日先)"
     },
     "reef": {
-     "coveragePct": 78.5,
-     "mapePct": 15.9,
-     "confMapePct": 20.8,
+     "coveragePct": 78.4,
+     "mapePct": 16.3,
+     "confMapePct": 21.1,
      "maeYen": 201,
-     "n": 1319,
+     "n": 1313,
      "label": "🐠 高級地物 (1日先)"
     },
     "pelagic": {
-     "coveragePct": 85.9,
-     "mapePct": 16.4,
-     "confMapePct": 21.7,
+     "coveragePct": 84.7,
+     "mapePct": 16.9,
+     "confMapePct": 22.1,
      "maeYen": 136,
      "n": 320,
      "label": "🐟 回遊魚他 (1日先)"
@@ -66743,79 +66743,79 @@
    },
    "3": {
     "lobster": {
-     "coveragePct": 73.9,
-     "mapePct": 20.3,
-     "confMapePct": 24.1,
-     "maeYen": 1375,
-     "n": 368,
+     "coveragePct": 73.2,
+     "mapePct": 19.4,
+     "confMapePct": 24.0,
+     "maeYen": 1398,
+     "n": 336,
      "label": "🦞 イセエビ類 (3日先)"
     },
     "reef": {
-     "coveragePct": 77.7,
-     "mapePct": 16.6,
-     "confMapePct": 21.9,
-     "maeYen": 208,
-     "n": 1313,
+     "coveragePct": 77.8,
+     "mapePct": 16.9,
+     "confMapePct": 22.2,
+     "maeYen": 216,
+     "n": 1304,
      "label": "🐠 高級地物 (3日先)"
     },
     "pelagic": {
-     "coveragePct": 87.7,
-     "mapePct": 18.9,
-     "confMapePct": 23.4,
-     "maeYen": 148,
+     "coveragePct": 84.9,
+     "mapePct": 18.5,
+     "confMapePct": 23.9,
+     "maeYen": 144,
      "n": 318,
      "label": "🐟 回遊魚他 (3日先)"
     }
    },
    "5": {
     "lobster": {
-     "coveragePct": 76.4,
-     "mapePct": 20.6,
-     "confMapePct": 24.7,
-     "maeYen": 1449,
-     "n": 356,
+     "coveragePct": 77.6,
+     "mapePct": 20.0,
+     "confMapePct": 23.8,
+     "maeYen": 1388,
+     "n": 322,
      "label": "🦞 イセエビ類 (5日先)"
     },
     "reef": {
-     "coveragePct": 76.3,
-     "mapePct": 18.4,
-     "confMapePct": 22.3,
-     "maeYen": 218,
-     "n": 1303,
+     "coveragePct": 77.8,
+     "mapePct": 18.3,
+     "confMapePct": 22.1,
+     "maeYen": 222,
+     "n": 1282,
      "label": "🐠 高級地物 (5日先)"
     },
     "pelagic": {
-     "coveragePct": 84.9,
-     "mapePct": 20.3,
-     "confMapePct": 25.0,
-     "maeYen": 157,
-     "n": 317,
+     "coveragePct": 81.9,
+     "mapePct": 19.9,
+     "confMapePct": 25.3,
+     "maeYen": 161,
+     "n": 315,
      "label": "🐟 回遊魚他 (5日先)"
     }
    },
    "7": {
     "lobster": {
-     "coveragePct": 74.6,
-     "mapePct": 19.1,
-     "confMapePct": 24.4,
-     "maeYen": 1341,
-     "n": 335,
+     "coveragePct": 76.7,
+     "mapePct": 18.1,
+     "confMapePct": 23.6,
+     "maeYen": 1304,
+     "n": 313,
      "label": "🦞 イセエビ類 (7日先)"
     },
     "reef": {
-     "coveragePct": 74.2,
-     "mapePct": 18.9,
-     "confMapePct": 23.6,
-     "maeYen": 232,
-     "n": 1282,
+     "coveragePct": 75.0,
+     "mapePct": 19.0,
+     "confMapePct": 23.7,
+     "maeYen": 231,
+     "n": 1270,
      "label": "🐠 高級地物 (7日先)"
     },
     "pelagic": {
-     "coveragePct": 82.7,
-     "mapePct": 21.6,
-     "confMapePct": 26.0,
-     "maeYen": 170,
-     "n": 313,
+     "coveragePct": 80.1,
+     "mapePct": 22.2,
+     "confMapePct": 27.3,
+     "maeYen": 177,
+     "n": 312,
      "label": "🐟 回遊魚他 (7日先)"
     }
    }
